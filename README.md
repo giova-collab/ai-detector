@@ -19,7 +19,7 @@ positives are expected.** Read the signals, not just the number.
 | Stock phrases | Whole discourse templates: “it's important to note”, “in conclusion”, “a double-edged sword”. |
 | Sentence rhythm | Burstiness — the spread of sentence lengths. Humans are lumpy; generated prose keeps tempo. List formatting with human voice caps this row, since bullets force uniform lines. |
 | Concrete anchors | Numbers, dates, proper names, checkable detail. Capped at 45: an absence of specifics corroborates, it never decides alone. |
-| Formatting tells | Em dashes, curly quotes, markdown, lists, paragraph symmetry, plus mechanical polish (capitals, terminal punctuation, comma rhythm). |
+| Formatting tells | Em dashes, curly quotes, markdown, lists, paragraph symmetry, plus mechanical polish (capitals, terminal punctuation, comma rhythm). Dateline dashes ("BRUSSELS —") are treated as newsroom convention, not as a tell. |
 | Human voice | Contractions, slang, fillers, first person, exclamation. Their absence is itself a signal. |
 | Baseline divergence | Optional. Compares the sample against 10–20 messages you know are the same person's. |
 
@@ -38,6 +38,21 @@ chat samples are judged against how people actually type.
    anomalies, then copy the briefing with **COPY REPORT**.
 
 Dossiers persist in `localStorage` on your machine. **CLEAR ARCHIVE** wipes them.
+
+## Validation
+
+`node benchmark/evaluate.js` runs 40 labeled human/AI pairs — cables, memos, news and
+forum posts, 80 documents — plus 8 typical-AI stress documents, and writes
+`benchmark/report.md` with per-register AUC, AUC per signal, FPR/recall and a threshold
+sweep.
+
+Current result: on **clean** paired formal prose the score is close to chance (AUC 0.59).
+Typical AI reaches the MEDIUM band (88% at 30) but rarely HIGH. The bands were not moved:
+no cut-off between 50 and 80 catches clean AI without false positives, and lowering HIGH
+to 30 buys 25% recall at an 8% false-positive rate. The honest reading is that a fluent,
+specific, cliché-free text is a blind spot, not that the threshold is set wrong. The
+benchmark is synthetic and small: treat it as a regression harness, not a prevalence
+estimate.
 
 ## Running locally
 
@@ -70,6 +85,7 @@ assets/css/style.css       navy–brass terminal theme + parchment theme
 assets/js/detector.js      measurement, signals, scoring, highlighting
 assets/js/app.js           archive, rendering, report, lock, theme
 assets/img/seal.webp       Department of State seal, spins on the Z axis
+benchmark/                 labeled pairs, typical-AI stress set, AUC/FPR report
 ```
 
 ## License

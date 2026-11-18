@@ -172,6 +172,9 @@
   const CONTRACTION_RE = /['’](s|t|re|ve|ll|d|m)\b/gi;
   const EMDASH_RE = /[—]/g;
   const ENDASH_RE = /[–]/g;
+  // "BRUSSELS —" is wire-service convention, not a machine tell
+  const DATELINE_EM_RE = /^[ \t]*[A-Z][A-Z .'-]{1,40}?\s*—\s/gm;
+  const DATELINE_EN_RE = /^[ \t]*[A-Z][A-Z .'-]{1,40}?\s*–\s/gm;
   const CURLY_RE = /[“”‘’]/g;
   const ELLIPSIS_RE = /…/g;
   const EMOJI_RE = (() => {
@@ -216,8 +219,8 @@
     const stockHits = findAll(text, STOCK_RE);
     const informalHits = findAll(text, INFORMAL_RE);
     const contractions = findAll(text, CONTRACTION_RE);
-    const emDash = findAll(text, EMDASH_RE).length;
-    const enDash = findAll(text, ENDASH_RE).length;
+    const emDash = Math.max(0, findAll(text, EMDASH_RE).length - findAll(text, DATELINE_EM_RE).length);
+    const enDash = Math.max(0, findAll(text, ENDASH_RE).length - findAll(text, DATELINE_EN_RE).length);
     const curly = findAll(text, CURLY_RE).length;
     const ellipsis = findAll(text, ELLIPSIS_RE).length;
     const emoji = findAll(text, EMOJI_RE).length;
