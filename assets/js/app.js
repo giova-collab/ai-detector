@@ -215,11 +215,10 @@
       "</div>"
     ).join("");
     box.innerHTML = head + rows;
-    requestAnimationFrame(() => {
-      box.querySelectorAll(".sig-bar i").forEach((el) => {
-        el.style.width = el.dataset.w + "%";
-      });
-    });
+    const fills = box.querySelectorAll(".sig-bar i");
+    fills.forEach((el) => { el.style.width = "0%"; });
+    void box.offsetWidth; // force a reflow so the fill transition runs
+    fills.forEach((el) => { el.style.width = el.dataset.w + "%"; });
   }
 
   /* ── report ──────────────────────────────────────────────────── */
