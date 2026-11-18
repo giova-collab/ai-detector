@@ -27,6 +27,10 @@
 
   <div class="topright">
     <label class="liaison" for="analyst">CHIEF ANALYST <input id="analyst" value="UNASSIGNED" spellcheck="false" autocomplete="off" /></label>
+    <button class="btn ghost" id="accessBtn" type="button" hidden>
+      <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><circle cx="8" cy="5" r="2.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M3 14c0-2.5 2.2-4 5-4s5 1.5 5 4" fill="none" stroke="currentColor" stroke-width="1.3"/>      </svg>
+      ADMIN
+    </button>
     <button class="btn ghost" id="lockBtn" type="button">
       <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><rect x="3" y="7" width="10" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
       LOCK
@@ -205,15 +209,57 @@
 
 <footer class="page-foot">
   <span>UNCLASSIFIED // FOR DEMONSTRATION ONLY</span>
-  <span id="privacyStatus">Self-hosted fonts · no network calls · dossiers stay in this browser.</span>
+  <span id="privacyStatus">Self-hosted fonts · no analytics · dossiers stay in this browser.</span>
 </footer>
+
+<div class="auth-overlay" id="authOverlay" role="dialog" aria-modal="true" aria-labelledby="authTitle" aria-describedby="authHint">
+  <form class="auth-box" id="authForm" autocomplete="off" novalidate>
+    <div class="auth-seal" aria-hidden="true"></div>
+    <p class="auth-kicker">DEPT. OF STATE · TERMINAL 07</p>
+    <h2 id="authTitle">ACCESS CLEARANCE</h2>
+    <p class="auth-sub" id="authHint">Enter an approved Google account email. Admin access is checked silently; this is a client-side gate, not a security boundary.</p>
+    <label class="auth-field" id="authEmailField" for="authEmail"><span>GOOGLE ACCOUNT EMAIL</span>
+      <input id="authEmail" name="email" type="email" inputmode="email" spellcheck="false" autocomplete="off" placeholder="name@gmail.com" />
+    </label>
+    <p class="auth-error" id="authError" role="alert"></p>
+    <button class="btn gold auth-submit" id="emailSubmit" type="submit">CHECK ACCESS</button>
+    <button class="btn ghost auth-google" id="googleBtn" type="button" hidden>VERIFY WITH GOOGLE</button>
+    <p class="auth-demo-note">PUBLIC WHITELIST ACTIVE · ADMIN EMAIL NOT LISTED</p>
+  </form>
+</div>
+
+<div class="access-overlay" id="accessOverlay" hidden>
+  <div class="access-box" role="dialog" aria-modal="true" aria-labelledby="accessTitle">
+    <div class="access-head">
+      <div>
+        <p class="auth-kicker">OWNER CONSOLE</p>
+        <h2 id="accessTitle">ADMIN PANEL</h2>
+      </div>
+      <button class="access-close" id="accessClose" type="button" aria-label="Close access control">✕</button>
+    </div>
+    <p class="access-owner">OWNER SESSION <strong>VERIFIED · ADMIN</strong></p>
+    <form id="approveForm" class="access-form" novalidate>
+      <label for="approveEmail">APPROVED EMAIL</label>
+      <div class="access-row">
+        <input id="approveEmail" type="email" inputmode="email" placeholder="name@gmail.com" autocomplete="off" spellcheck="false" />
+        <button class="btn gold" type="submit">APPROVE</button>
+      </div>
+      <p class="auth-error" id="approveError" role="alert"></p>
+    </form>
+    <ul id="approvedList" class="access-list"></ul>
+    <p class="access-note">Stored in this browser only. The built-in entry is fixed; the owner email is not present in this page.</p>
+  </div>
+</div>
 
 <div class="lock-overlay" id="lockOverlay" hidden>
   <div class="lock-box">
     <svg viewBox="0 0 16 16" width="26" height="26" aria-hidden="true"><rect x="3" y="7" width="10" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.1"/></svg>
     <h2>SECURE TERMINAL LOCKED</h2>
     <p>Session held. No analysis is running.</p>
-    <button class="btn gold" id="unlockBtn" type="button">PRESS TO RESUME</button>
+    <div class="lock-actions">
+      <button class="btn gold" id="unlockBtn" type="button">PRESS TO RESUME</button>
+      <button class="linkish" id="signOutBtn" type="button">SIGN OUT</button>
+    </div>
   </div>
 </div>
 

@@ -31,6 +31,33 @@ chat samples are judged against how people actually type.
 
 ## Using it
 
+The console opens on an **access gate**. The built-in public whitelist contains
+`thisentirethingsucksbro@gmail.com` (approved, not admin). The owner sees **ADMIN** in the
+header to approve or remove other email addresses; built-in entries are fixed. The list
+is stored in `localStorage`, so it is per browser and client-side: anyone who can edit
+this browser can bypass it. **SIGN OUT** in the LOCK panel clears the tab session.
+
+The owner email is **not present in the page or the source**. Admin access is checked
+against a salted PBKDF2 hash in `assets/js/app.js` and the owner never appears in the
+UI or clipboard report. A hash keeps the address out of casual view, but it is not
+confidentiality against a determined offline attacker, and this is still a client-side
+gate with no server enforcement.
+
+**Optional Google verification.** `GOOGLE_CLIENT_ID` at the top of
+`assets/js/app.js` is empty by default, so the **VERIFY WITH GOOGLE** button stays
+hidden and the email check is the demo path. Set it to a Google OAuth Web client ID,
+register the page origin (`http://127.0.0.1:5173` locally and the deployed origin), and
+the button asks Google for the account email before checking the allowlist, and the
+manual email field is hidden: with a client ID configured, Google is the only entry
+path. Google's script and profile endpoint are contacted only after that button is
+pressed; the token is handled in the page and is not verified by a backend.
+
+To create the client: Google Cloud Console → APIs & Services → Credentials → OAuth
+client ID → Web application. Add `http://127.0.0.1:5173` and
+`https://<user>.github.io` as authorized JavaScript origins (no path), configure the
+OAuth consent screen, and add test users while the app is in Testing. Paste the client
+ID into `GOOGLE_CLIENT_ID`; there is no client secret in the page.
+
 1. Paste a sample into **SUBJECT SAMPLE**.
 2. Optionally paste known-human messages into **BASELINE**.
 3. Press **RUN SCREENING** (or <kbd>Ctrl</kbd>+<kbd>Enter</kbd>).
@@ -42,11 +69,15 @@ retention, and **SESSION ONLY** keeps them in memory. **CLEAR ARCHIVE** wipes th
 
 ## Privacy
 
-- **No external requests.** Fonts are self-hosted in `assets/fonts` (IBM Plex Mono under
-the SIL OFL, Special Elite under Apache 2.0); there are no Google Fonts links, analytics
-or telemetry.
+- **No external requests by default.** Fonts are self-hosted in `assets/fonts` (IBM Plex
+Mono under the SIL OFL, Special Elite under Apache 2.0); there are no Google Fonts
+links, analytics or telemetry. The optional **VERIFY WITH GOOGLE** flow loads Google's
+script and calls its profile endpoint only when pressed, and never sends dossier text.
 - **No uploads.** Screening runs in the page; sample and baseline text never leave the
 browser.
+- **Admin identity.** The owner email is stored only as a salted PBKDF2 hash; it is not
+written to the page, the archive or reports. The hash is public in the source, so it
+hides the address from casual inspection, not from offline guessing.
 - **Session only** (header) clears the stored archive, disables further writes, and keeps
 new dossiers in memory. A `sessionStorage` flag remembers the mode for the tab so a
 reload cannot accidentally persist the next dossier; the reload empties the archive. No

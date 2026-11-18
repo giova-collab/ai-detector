@@ -7,6 +7,17 @@
   const $ = (id) => document.getElementById(id);
   const STORE_KEY = "state.ai-detector.v1";
   const SESSION_KEY = "pref.ai-detector.session";
+  const AUTH_KEY = "auth.ai-detector.v1";
+  const ROLE_KEY = "role.ai-detector.v1";
+  const OWNER_SALT = "dos-ai-1953-owner";
+  // The owner email is intentionally not in this file. Only this salted
+  // PBKDF2 hash is stored; it is a privacy measure, not a server secret.
+  const OWNER_HASH = "c5214ba27a937b34e6da01392a04c676382d0f8b279ec9d53eb72d646c55380f";
+  const APPROVED_KEY = "access.ai-detector.approved.v1";
+  const DEFAULT_APPROVED = ["thisentirethingsucksbro@gmail.com"];
+  // Optional: paste a Google OAuth Web client ID here to enable the
+  // "Verify with Google" button. Leave empty for the local email allowlist.
+  const GOOGLE_CLIENT_ID = "";
   const RETENTION_DAYS = [0, 7, 30, 90];
   const MAX_DOSSIERS = 40;
 
@@ -29,11 +40,262 @@
   let current = null;
   let scanTimer = null;
   let toastTimer = null;
+  let approvedEmails = [];
+  let googleClient = null;
+  let googleScript = null;
 
   /* ── storage ─────────────────────────────────────────────────── */
 
   function sessionRequested() {
     try { return sessionStorage.getItem(SESSION_KEY) === "1"; } catch (e) { return false; }
+  }
+
+  function normalizeEmail(value) {
+    return String(value || "").trim().toLowerCase();
+  }
+
+  function validEmail(value) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  }
+
+  function isBuiltIn(email) {
+    return DEFAULT_APPROVED.includes(email);
+  }
+
+  function loadApproved() {
+    let stored = [];
+    try {
+      const raw = JSON.parse(localStorage.getItem(APPROVED_KEY) || "[]");
+      if (Array.isArray(raw)) stored = raw;
+    } catch (e) { /* corrupt or blocked: use the built-in list */ }
+    return [...new Set([...DEFAULT_APPROVED, ...stored].map(normalizeEmail).filter(validEmail))];
+  }
+
+  function saveApproved() {
+    try { localStorage.setItem(APPROVED_KEY, JSON.stringify(approvedEmails)); } catch (e) { /* quota/blocked */ }
+  }
+
+  async function ownerHash(email) {
+    if (!window.crypto || !window.crypto.subtle) throw new Error("Web Crypto unavailable");
+    const bytes = new TextEncoder().encode(email);
+    const key = await crypto.subtle.importKey("raw", bytes, "PBKDF2", false, ["deriveBits"]);
+    const bits = await crypto.subtle.deriveBits({
+      name: "PBKDF2",
+      salt: new TextEncoder().encode(OWNER_SALT),
+      iterations: 120000,
+      hash: "SHA-256"
+    }, key, 256);
+    return [...new Uint8Array(bits)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+  }
+
+  async function isOwnerEmail(email) {
+    if (!email) return false;
+    try { return (await ownerHash(email)) === OWNER_HASH; } catch (e) { return false; }
+  }
+
+  function isOwnerSession() {
+    try { return sessionStorage.getItem(ROLE_KEY) === "owner"; } catch (e) { return false; }
+  }
+
+  function signedInEmail() {
+    try {
+      const value = sessionStorage.getItem(AUTH_KEY);
+      return value && value.includes("@") ? normalizeEmail(value) : null;
+    } catch (e) { return null; }
+  }
+
+  function authError(message) {
+    $("authError").textContent = message;
+    const box = $("authForm");
+    box.classList.remove("shake");
+    void box.offsetWidth;
+    box.classList.add("shake");
+  }
+
+  function setAuthLocked(locked) {
+    const overlay = $("authOverlay");
+    if (!overlay) return;
+    overlay.hidden = !locked;
+    document.body.classList.toggle("auth-locked", locked);
+    document.querySelectorAll(".topbar, main, .page-foot").forEach((el) => {
+      if (locked) el.setAttribute("inert", "");
+      else el.removeAttribute("inert");
+    });
+    if (!locked) return;
+    $("authError").textContent = "";
+    requestAnimationFrame(() => $("authEmail").focus());
+  }
+
+  function updateAccessUi() {
+    const owner = isOwnerSession();
+    const btn = $("accessBtn");
+    if (btn) btn.hidden = !owner;
+    if (!owner && !$("accessOverlay").hidden) setAccessOpen(false);
+  }
+
+  function updateGoogleUi() {
+    const btn = $("googleBtn");
+    if (!btn) return;
+    const configured = !!GOOGLE_CLIENT_ID;
+    btn.hidden = !configured;
+    btn.title = configured ? "Verify the selected Google account email" : "Set GOOGLE_CLIENT_ID to enable";
+    $("authEmailField").hidden = configured;
+    $("emailSubmit").hidden = configured;
+    $("authHint").textContent = configured
+      ? "Verify with the Google account on the approved list. This is a client-side gate, not a security boundary."
+      : "Enter an approved Google account email. Admin access is checked silently; this is a client-side gate, not a security boundary.";
+  }
+
+  function setAccessOpen(open) {
+    const overlay = $("accessOverlay");
+    if (!overlay) return;
+    overlay.hidden = !open;
+    document.body.classList.toggle("access-open", open);
+    document.querySelectorAll(".topbar, main, .page-foot").forEach((el) => {
+      if (open) el.setAttribute("inert", "");
+      else el.removeAttribute("inert");
+    });
+    if (!open) return;
+    renderApproved();
+    $("approveEmail").value = "";
+    $("approveError").textContent = "";
+    requestAnimationFrame(() => $("approveEmail").focus());
+  }
+
+  function renderApproved() {
+    $("approvedList").innerHTML = approvedEmails.length
+      ? approvedEmails.map((email, index) => {
+          const builtIn = isBuiltIn(email);
+          return '<li class="access-item"><span>' + AIDetector.escapeHtml(email) +
+            (builtIn ? ' <em class="access-tag">BUILT-IN</em>' : '') + '</span>' +
+            (builtIn ? '' : '<button type="button" data-remove="' + index + '" aria-label="Remove ' + AIDetector.escapeHtml(email) + '">✕</button>') +
+            '</li>';
+        }).join("")
+      : '<li class="access-empty">No approved emails yet.</li>';
+  }
+
+  async function addApproved(e) {
+    e.preventDefault();
+    const email = normalizeEmail($("approveEmail").value);
+    let error = "";
+    if (!validEmail(email)) error = "ENTER A VALID EMAIL ADDRESS";
+    else if (isBuiltIn(email)) error = "BUILT-IN EMAIL ALREADY APPROVED";
+    else if (approvedEmails.includes(email)) error = "EMAIL ALREADY APPROVED";
+    else if (await isOwnerEmail(email)) error = "OWNER ALREADY HAS ACCESS";
+    $("approveError").textContent = error;
+    if (error) return;
+    approvedEmails.push(email);
+    approvedEmails.sort();
+    saveApproved();
+    renderApproved();
+    $("approveEmail").value = "";
+    toast("Email approved");
+  }
+
+  function removeApproved(index) {
+    if (!Number.isInteger(index) || index < 0 || index >= approvedEmails.length) return;
+    const email = approvedEmails[index];
+    if (isBuiltIn(email)) { toast("Built-in email cannot be removed"); return; }
+    approvedEmails.splice(index, 1);
+    saveApproved();
+    renderApproved();
+    toast("Email removed");
+  }
+
+  function loadGoogleScript() {
+    if (window.google && window.google.accounts) return Promise.resolve(window.google);
+    if (googleScript) return googleScript;
+    googleScript = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      script.onload = () => resolve(window.google);
+      script.onerror = () => {
+        googleScript = null;
+        reject(new Error("Google script failed to load"));
+      };
+      document.head.appendChild(script);
+    });
+    return googleScript;
+  }
+
+  async function googleVerify() {
+    if (!GOOGLE_CLIENT_ID) return;
+    $("authError").textContent = "";
+    const btn = $("googleBtn");
+    btn.disabled = true;
+    try {
+      const google = await loadGoogleScript();
+      if (!googleClient) {
+        googleClient = google.accounts.oauth2.initTokenClient({
+          client_id: GOOGLE_CLIENT_ID,
+          scope: "openid email profile",
+          callback: async (response) => {
+            if (response.error) { authError("GOOGLE SIGN-IN CANCELLED"); return; }
+            try {
+              const profile = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+                headers: { Authorization: "Bearer " + response.access_token }
+              });
+              if (!profile.ok) throw new Error("userinfo failed");
+              const info = await profile.json();
+              await signInWithEmail(info.email, "google");
+            } catch (e) {
+              authError("GOOGLE CHECK FAILED");
+            }
+          }
+        });
+      }
+      googleClient.requestAccessToken({ prompt: "select_account" });
+    } catch (e) {
+      authError("GOOGLE SIGN-IN UNAVAILABLE");
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  async function signInWithEmail(raw, method) {
+    const email = normalizeEmail(raw);
+    if (!validEmail(email)) { authError("ENTER A VALID EMAIL ADDRESS"); return false; }
+    const owner = await isOwnerEmail(email);
+    if (!owner && !approvedEmails.includes(email)) {
+      authError("EMAIL NOT ON THE APPROVED LIST");
+      return false;
+    }
+    try {
+      sessionStorage.setItem(AUTH_KEY, email);
+      sessionStorage.setItem(ROLE_KEY, owner ? "owner" : "user");
+    } catch (e) { /* storage blocked */ }
+    if (state.analyst === "UNASSIGNED") {
+      state.analyst = owner ? "OWNER" : email.split("@")[0].slice(0, 16).toUpperCase();
+      $("analyst").value = state.analyst;
+      save();
+    }
+    $("authEmail").value = "";
+    $("authForm").classList.remove("shake");
+    setAuthLocked(false);
+    updateAccessUi();
+    toast(owner ? "Owner access granted" : method === "google" ? "Google verified" : "Access granted");
+    $("subjectText").focus();
+    return true;
+  }
+
+  async function authenticate(e) {
+    e.preventDefault();
+    if (GOOGLE_CLIENT_ID) { authError("USE VERIFY WITH GOOGLE"); return; }
+    await signInWithEmail($("authEmail").value, "email");
+  }
+
+  function signOut() {
+    try {
+      sessionStorage.removeItem(AUTH_KEY);
+      sessionStorage.removeItem(ROLE_KEY);
+    } catch (e) { /* storage blocked */ }
+    setAccessOpen(false);
+    $("lockOverlay").hidden = true;
+    $("authEmail").value = "";
+    setAuthLocked(true);
+    updateAccessUi();
   }
 
   function load() {
@@ -116,7 +378,7 @@
     const retention = state.retentionDays ? "auto-erase after " + state.retentionDays + " days" : "kept until cleared";
     $("privacyStatus").textContent = state.sessionOnly
       ? "Session only · dossiers not saved · reload clears the archive."
-      : "Self-hosted fonts · no network calls · dossiers stay here, " + retention + ".";
+      : "Self-hosted fonts · no analytics · dossiers stay here, " + retention + ".";
   }
 
   function toggleSession() {
@@ -627,6 +889,21 @@
       toast(removed + " expired dossier" + (removed === 1 ? "" : "s") + " erased");
     });
 
+    $("authForm").addEventListener("submit", authenticate);
+    $("googleBtn").addEventListener("click", googleVerify);
+    $("signOutBtn").addEventListener("click", signOut);
+
+    $("accessBtn").addEventListener("click", () => setAccessOpen(true));
+    $("accessClose").addEventListener("click", () => setAccessOpen(false));
+    $("accessOverlay").addEventListener("click", (e) => {
+      if (e.target === $("accessOverlay")) setAccessOpen(false);
+    });
+    $("approveForm").addEventListener("submit", addApproved);
+    $("approvedList").addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-remove]");
+      if (btn) removeApproved(Number(btn.dataset.remove));
+    });
+
     $("lockBtn").addEventListener("click", () => {
       $("lockOverlay").hidden = false;
       $("unlockBtn").focus();
@@ -635,6 +912,11 @@
       $("lockOverlay").hidden = true;
     });
     document.addEventListener("keydown", (e) => {
+      if (!$("accessOverlay").hidden && e.key === "Escape") {
+        setAccessOpen(false);
+        e.preventDefault();
+        return;
+      }
       if (!$("lockOverlay").hidden && (e.key === "Escape" || e.key === "Enter")) {
         $("lockOverlay").hidden = true;
         e.preventDefault();
@@ -649,7 +931,21 @@
 
   /* ── boot ────────────────────────────────────────────────────── */
 
-  function init() {
+  async function init() {
+    approvedEmails = loadApproved();
+    const stored = signedInEmail();
+    if (stored) {
+      let owner = isOwnerSession();
+      if (!owner && !approvedEmails.includes(stored)) owner = await isOwnerEmail(stored);
+      if (!owner && !approvedEmails.includes(stored)) {
+        try {
+          sessionStorage.removeItem(AUTH_KEY);
+          sessionStorage.removeItem(ROLE_KEY);
+        } catch (e) { /* storage blocked */ }
+      } else {
+        try { sessionStorage.setItem(ROLE_KEY, owner ? "owner" : "user"); } catch (e) { /* storage blocked */ }
+      }
+    }
     load();
     const expired = purgeExpired(false);
     if (expired && !state.sessionOnly) save();
@@ -669,6 +965,10 @@
       resetFindings();
     }
     if (expired) toast(expired + " expired dossier" + (expired === 1 ? "" : "s") + " erased");
+
+    setAuthLocked(!signedInEmail());
+    updateAccessUi();
+    updateGoogleUi();
 
     setInterval(() => {
       $("liveTime").textContent = clockLabel(new Date());
