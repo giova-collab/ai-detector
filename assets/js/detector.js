@@ -339,8 +339,12 @@
     {
       const enough = m.sentences >= 4;
       let susp = enough ? norm(0.92 - m.burstiness, 0, 0.62) : 0.4;
+      // list items force short, uniform lines: that is the format, not a machine
+      const listed = m.bullets + m.numbered >= 3;
+      if (listed) susp = Math.min(susp, 0.6);
       const detail = enough
         ? `${m.sentences} sentences, mean ${m.avgSent.toFixed(1)} words, spread ±${m.sdSent.toFixed(1)} (burstiness ${m.burstiness.toFixed(2)}). Humans are lumpy: fragments, then a long run-on. Generated text keeps an even tempo.`
+          + (listed ? ` List formatting caps this row at 60: bullets impose uniform line lengths.` : "")
         : `Only ${m.sentences} sentence${m.sentences === 1 ? "" : "s"} — rhythm cannot be measured. Treat this row as inconclusive.`;
       out.push({
         id: "rhythm",
@@ -352,12 +356,14 @@
 
     /* 4 — concrete anchors (corroborating only) */
     {
-      // capped: a text with no numbers is not proof of anything on its own
-      const susp = clamp(1 - norm(m.anchorPer100, 0.5, 4.0), 0, 1) * 0.6;
+      // capped: a text with no numbers is not proof of anything on its own.
+      // Keeping the weight but lowering the ceiling avoids shifting weight onto
+      // documents that already carry plenty of anchors.
+      const susp = clamp(1 - norm(m.anchorPer100, 0.5, 4.0), 0, 1) * 0.45;
       out.push({
         id: "anchor", label: "CONCRETE ANCHORS",
         value: round(susp * 100), weight: w.anchor, susp,
-        note: `${m.anchors} hard reference${m.anchors === 1 ? "" : "s"} in ${m.words} words (${m.anchorPer100.toFixed(1)} per 100): numbers, dates, names, checkable detail. Capped at 60 — an absence of specifics corroborates, it never decides alone.`
+        note: `${m.anchors} hard reference${m.anchors === 1 ? "" : "s"} in ${m.words} words (${m.anchorPer100.toFixed(1)} per 100): numbers, dates, names, checkable detail. Capped at 45 — an absence of specifics corroborates, it never decides alone.`
       });
     }
 
