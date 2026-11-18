@@ -43,20 +43,10 @@ UI or clipboard report. A hash keeps the address out of casual view, but it is n
 confidentiality against a determined offline attacker, and this is still a client-side
 gate with no server enforcement.
 
-**Optional Google verification.** `GOOGLE_CLIENT_ID` at the top of
-`assets/js/app.js` is empty by default, so the **VERIFY WITH GOOGLE** button stays
-hidden and the email check is the demo path. Set it to a Google OAuth Web client ID,
-register the page origin (`http://127.0.0.1:5173` locally and the deployed origin), and
-the button asks Google for the account email before checking the allowlist, and the
-manual email field is hidden: with a client ID configured, Google is the only entry
-path. Google's script and profile endpoint are contacted only after that button is
-pressed; the token is handled in the page and is not verified by a backend.
-
-To create the client: Google Cloud Console → APIs & Services → Credentials → OAuth
-client ID → Web application. Add `http://127.0.0.1:5173` and
-`https://<user>.github.io` as authorized JavaScript origins (no path), configure the
-OAuth consent screen, and add test users while the app is in Testing. Paste the client
-ID into `GOOGLE_CLIENT_ID`; there is no client secret in the page.
+**Local one-time code.** After an approved email the gate generates a 6-digit code in
+the page, valid for 5 minutes and 5 attempts. There is no backend and no email service,
+so the code is shown in a **SIMULATED DELIVERY** box: it verifies the gate flow, not
+ownership of the mailbox. Real delivery would need a hosted auth service or a backend.
 
 1. Paste a sample into **SUBJECT SAMPLE**.
 2. Optionally paste known-human messages into **BASELINE**.
@@ -69,10 +59,9 @@ retention, and **SESSION ONLY** keeps them in memory. **CLEAR ARCHIVE** wipes th
 
 ## Privacy
 
-- **No external requests by default.** Fonts are self-hosted in `assets/fonts` (IBM Plex
-Mono under the SIL OFL, Special Elite under Apache 2.0); there are no Google Fonts
-links, analytics or telemetry. The optional **VERIFY WITH GOOGLE** flow loads Google's
-script and calls its profile endpoint only when pressed, and never sends dossier text.
+- **No external requests.** Fonts are self-hosted in `assets/fonts` (IBM Plex Mono under
+the SIL OFL, Special Elite under Apache 2.0); there are no external font CDNs, no email
+provider, no analytics and no telemetry. The access code is generated in the page.
 - **No uploads.** Screening runs in the page; sample and baseline text never leave the
 browser.
 - **Admin identity.** The owner email is stored only as a salted PBKDF2 hash; it is not

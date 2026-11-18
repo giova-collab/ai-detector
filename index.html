@@ -209,7 +209,7 @@
 
 <footer class="page-foot">
   <span>UNCLASSIFIED // FOR DEMONSTRATION ONLY</span>
-  <span id="privacyStatus">Self-hosted fonts · no analytics · dossiers stay in this browser.</span>
+  <span id="privacyStatus">Self-hosted fonts · no network calls · dossiers stay in this browser.</span>
 </footer>
 
 <div class="auth-overlay" id="authOverlay" role="dialog" aria-modal="true" aria-labelledby="authTitle" aria-describedby="authHint">
@@ -217,14 +217,30 @@
     <div class="auth-seal" aria-hidden="true"></div>
     <p class="auth-kicker">DEPT. OF STATE · TERMINAL 07</p>
     <h2 id="authTitle">ACCESS CLEARANCE</h2>
-    <p class="auth-sub" id="authHint">Enter an approved Google account email. Admin access is checked silently; this is a client-side gate, not a security boundary.</p>
-    <label class="auth-field" id="authEmailField" for="authEmail"><span>GOOGLE ACCOUNT EMAIL</span>
-      <input id="authEmail" name="email" type="email" inputmode="email" spellcheck="false" autocomplete="off" placeholder="name@gmail.com" />
-    </label>
+    <p class="auth-sub" id="authHint">Enter an approved email. A one-time code verifies the flow locally; no email is sent from this demo.</p>
+    <div id="emailStep">
+      <label class="auth-field" for="authEmail"><span>APPROVED EMAIL</span>
+        <input id="authEmail" name="email" type="email" inputmode="email" spellcheck="false" autocomplete="off" placeholder="name@gmail.com" />
+      </label>
+    </div>
+    <div id="codeStep" hidden>
+      <p class="auth-sent">CODE FOR <span id="otpEmail"></span></p>
+      <div class="auth-code-box">
+        <span>SIMULATED DELIVERY · NO EMAIL SENT</span>
+        <strong id="otpCode">------</strong>
+      </div>
+      <label class="auth-field" for="authCode"><span>6-DIGIT CODE</span>
+        <input id="authCode" name="code" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" placeholder="000000" />
+      </label>
+      <p class="auth-code-meta" id="otpMeta">EXPIRES IN 5 MIN · 5 ATTEMPTS</p>
+    </div>
     <p class="auth-error" id="authError" role="alert"></p>
-    <button class="btn gold auth-submit" id="emailSubmit" type="submit">CHECK ACCESS</button>
-    <button class="btn ghost auth-google" id="googleBtn" type="button" hidden>VERIFY WITH GOOGLE</button>
-    <p class="auth-demo-note">PUBLIC WHITELIST ACTIVE · ADMIN EMAIL NOT LISTED</p>
+    <button class="btn gold auth-submit" id="authSubmit" type="submit">SEND CODE</button>
+    <div class="auth-links" id="codeActions" hidden>
+      <button class="linkish" id="resendBtn" type="button">RESEND CODE</button>
+      <button class="linkish" id="changeEmailBtn" type="button">CHANGE EMAIL</button>
+    </div>
+    <p class="auth-demo-note">PUBLIC WHITELIST ACTIVE · ADMIN EMAIL NOT LISTED · DEMO OTP</p>
   </form>
 </div>
 

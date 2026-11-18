@@ -15,9 +15,8 @@
   const OWNER_HASH = "c5214ba27a937b34e6da01392a04c676382d0f8b279ec9d53eb72d646c55380f";
   const APPROVED_KEY = "access.ai-detector.approved.v1";
   const DEFAULT_APPROVED = ["thisentirethingsucksbro@gmail.com"];
-  // Optional: paste a Google OAuth Web client ID here to enable the
-  // "Verify with Google" button. Leave empty for the local email allowlist.
-  const GOOGLE_CLIENT_ID = "";
+  const OTP_TTL = 5 * 60 * 1000;
+  const OTP_MAX_ATTEMPTS = 5;
   const RETENTION_DAYS = [0, 7, 30, 90];
   const MAX_DOSSIERS = 40;
 
@@ -41,8 +40,11 @@
   let scanTimer = null;
   let toastTimer = null;
   let approvedEmails = [];
-  let googleClient = null;
-  let googleScript = null;
+  let otpStage = "email";
+  let pendingEmail = "";
+  let pendingCode = "";
+  let otpExpires = 0;
+  let otpAttempts = 0;
 
   /* ── storage ─────────────────────────────────────────────────── */
 
@@ -133,19 +135,6 @@
     if (!owner && !$("accessOverlay").hidden) setAccessOpen(false);
   }
 
-  function updateGoogleUi() {
-    const btn = $("googleBtn");
-    if (!btn) return;
-    const configured = !!GOOGLE_CLIENT_ID;
-    btn.hidden = !configured;
-    btn.title = configured ? "Verify the selected Google account email" : "Set GOOGLE_CLIENT_ID to enable";
-    $("authEmailField").hidden = configured;
-    $("emailSubmit").hidden = configured;
-    $("authHint").textContent = configured
-      ? "Verify with the Google account on the approved list. This is a client-side gate, not a security boundary."
-      : "Enter an approved Google account email. Admin access is checked silently; this is a client-side gate, not a security boundary.";
-  }
-
   function setAccessOpen(open) {
     const overlay = $("accessOverlay");
     if (!overlay) return;
@@ -202,59 +191,97 @@
     toast("Email removed");
   }
 
-  function loadGoogleScript() {
-    if (window.google && window.google.accounts) return Promise.resolve(window.google);
-    if (googleScript) return googleScript;
-    googleScript = new Promise((resolve, reject) => {
-      const script = document.createElement("script");
-      script.src = "https://accounts.google.com/gsi/client";
-      script.async = true;
-      script.defer = true;
-      script.onload = () => resolve(window.google);
-      script.onerror = () => {
-        googleScript = null;
-        reject(new Error("Google script failed to load"));
-      };
-      document.head.appendChild(script);
-    });
-    return googleScript;
-  }
-
-  async function googleVerify() {
-    if (!GOOGLE_CLIENT_ID) return;
+  function resetOtp() {
+    otpStage = "email";
+    pendingEmail = "";
+    pendingCode = "";
+    otpExpires = 0;
+    otpAttempts = 0;
+    $("emailStep").hidden = false;
+    $("codeStep").hidden = true;
+    $("codeActions").hidden = true;
+    $("authSubmit").textContent = "SEND CODE";
+    $("authCode").value = "";
+    $("otpCode").textContent = "------";
+    $("otpEmail").textContent = "";
     $("authError").textContent = "";
-    const btn = $("googleBtn");
-    btn.disabled = true;
-    try {
-      const google = await loadGoogleScript();
-      if (!googleClient) {
-        googleClient = google.accounts.oauth2.initTokenClient({
-          client_id: GOOGLE_CLIENT_ID,
-          scope: "openid email profile",
-          callback: async (response) => {
-            if (response.error) { authError("GOOGLE SIGN-IN CANCELLED"); return; }
-            try {
-              const profile = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-                headers: { Authorization: "Bearer " + response.access_token }
-              });
-              if (!profile.ok) throw new Error("userinfo failed");
-              const info = await profile.json();
-              await signInWithEmail(info.email, "google");
-            } catch (e) {
-              authError("GOOGLE CHECK FAILED");
-            }
-          }
-        });
-      }
-      googleClient.requestAccessToken({ prompt: "select_account" });
-    } catch (e) {
-      authError("GOOGLE SIGN-IN UNAVAILABLE");
-    } finally {
-      btn.disabled = false;
-    }
   }
 
-  async function signInWithEmail(raw, method) {
+  function maskEmail(email) {
+    const at = email.lastIndexOf("@");
+    return at < 1 ? email : email[0] + "***" + email.slice(at);
+  }
+
+  function makeCode() {
+    const buffer = new Uint32Array(1);
+    if (window.crypto && window.crypto.getRandomValues) window.crypto.getRandomValues(buffer);
+    else buffer[0] = Math.floor(Math.random() * 0xffffffff);
+    return String(buffer[0] % 1000000).padStart(6, "0");
+  }
+
+  async function requestCode() {
+    const email = normalizeEmail($("authEmail").value);
+    if (!validEmail(email)) { authError("ENTER A VALID EMAIL ADDRESS"); return; }
+    const owner = await isOwnerEmail(email);
+    if (!owner && !approvedEmails.includes(email)) {
+      authError("EMAIL NOT ON THE APPROVED LIST");
+      return;
+    }
+    pendingEmail = email;
+    pendingCode = makeCode();
+    otpExpires = Date.now() + OTP_TTL;
+    otpAttempts = 0;
+    otpStage = "code";
+    $("authEmail").value = "";
+    $("emailStep").hidden = true;
+    $("codeStep").hidden = false;
+    $("codeActions").hidden = false;
+    $("authSubmit").textContent = "VERIFY CODE";
+    $("otpEmail").textContent = maskEmail(email);
+    $("otpCode").textContent = pendingCode;
+    $("otpMeta").textContent = "EXPIRES IN 5 MIN · " + OTP_MAX_ATTEMPTS + " ATTEMPTS";
+    $("authError").textContent = "";
+    $("authCode").value = "";
+    $("authCode").focus();
+  }
+
+  function resendCode() {
+    if (!pendingEmail) { resetOtp(); return; }
+    pendingCode = makeCode();
+    otpExpires = Date.now() + OTP_TTL;
+    otpAttempts = 0;
+    $("otpCode").textContent = pendingCode;
+    $("otpMeta").textContent = "EXPIRES IN 5 MIN · " + OTP_MAX_ATTEMPTS + " ATTEMPTS";
+    $("authCode").value = "";
+    $("authError").textContent = "";
+    $("authCode").focus();
+  }
+
+  async function verifyCode() {
+    if (Date.now() > otpExpires) { authError("CODE EXPIRED · RESEND"); return; }
+    if (otpAttempts >= OTP_MAX_ATTEMPTS) { authError("TOO MANY ATTEMPTS · RESEND"); return; }
+    const code = $("authCode").value.replace(/\D/g, "");
+    if (code.length !== 6) { authError("ENTER THE 6-DIGIT CODE"); return; }
+    if (code !== pendingCode) {
+      otpAttempts += 1;
+      authError("CODE REJECTED · " + (OTP_MAX_ATTEMPTS - otpAttempts) + " ATTEMPTS LEFT");
+      $("authCode").value = "";
+      $("authCode").focus();
+      return;
+    }
+    const email = pendingEmail;
+    resetOtp();
+    await signInWithEmail(email);
+  }
+
+  function changeEmail() {
+    const previous = pendingEmail;
+    resetOtp();
+    $("authEmail").value = previous;
+    $("authEmail").focus();
+  }
+
+  async function signInWithEmail(raw) {
     const email = normalizeEmail(raw);
     if (!validEmail(email)) { authError("ENTER A VALID EMAIL ADDRESS"); return false; }
     const owner = await isOwnerEmail(email);
@@ -275,15 +302,15 @@
     $("authForm").classList.remove("shake");
     setAuthLocked(false);
     updateAccessUi();
-    toast(owner ? "Owner access granted" : method === "google" ? "Google verified" : "Access granted");
+    toast(owner ? "Owner access granted" : "Email verified");
     $("subjectText").focus();
     return true;
   }
 
   async function authenticate(e) {
     e.preventDefault();
-    if (GOOGLE_CLIENT_ID) { authError("USE VERIFY WITH GOOGLE"); return; }
-    await signInWithEmail($("authEmail").value, "email");
+    if (otpStage === "email") await requestCode();
+    else await verifyCode();
   }
 
   function signOut() {
@@ -294,6 +321,7 @@
     setAccessOpen(false);
     $("lockOverlay").hidden = true;
     $("authEmail").value = "";
+    resetOtp();
     setAuthLocked(true);
     updateAccessUi();
   }
@@ -378,7 +406,7 @@
     const retention = state.retentionDays ? "auto-erase after " + state.retentionDays + " days" : "kept until cleared";
     $("privacyStatus").textContent = state.sessionOnly
       ? "Session only · dossiers not saved · reload clears the archive."
-      : "Self-hosted fonts · no analytics · dossiers stay here, " + retention + ".";
+      : "Self-hosted fonts · no network calls · dossiers stay here, " + retention + ".";
   }
 
   function toggleSession() {
@@ -890,7 +918,8 @@
     });
 
     $("authForm").addEventListener("submit", authenticate);
-    $("googleBtn").addEventListener("click", googleVerify);
+    $("resendBtn").addEventListener("click", resendCode);
+    $("changeEmailBtn").addEventListener("click", changeEmail);
     $("signOutBtn").addEventListener("click", signOut);
 
     $("accessBtn").addEventListener("click", () => setAccessOpen(true));
@@ -967,8 +996,8 @@
     if (expired) toast(expired + " expired dossier" + (expired === 1 ? "" : "s") + " erased");
 
     setAuthLocked(!signedInEmail());
+    if (!signedInEmail()) resetOtp();
     updateAccessUi();
-    updateGoogleUi();
 
     setInterval(() => {
       $("liveTime").textContent = clockLabel(new Date());

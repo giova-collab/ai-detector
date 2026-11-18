@@ -960,6 +960,7 @@ body.auth-locked { overflow: hidden; }
   outline: none;
 }
 .auth-field input#authEmail { text-transform: none; letter-spacing: 0.04em; }
+.auth-field input#authCode { letter-spacing: 0.28em; font-size: 16px; }
 .auth-field input:focus {
   border-color: var(--gold);
   box-shadow: 0 0 0 1px rgba(200, 166, 63, 0.25);
@@ -978,16 +979,30 @@ body.parchment .auth-error { color: #8e2318; }
   color: #e08a7a;
 }
 .auth-submit { width: 100%; justify-content: center; padding: 11px; }
-.auth-google { width: 100%; justify-content: center; margin-top: 8px; }
-.auth-demo {
-  display: block;
-  margin: 14px auto 0;
-  font-size: 9.5px;
-  letter-spacing: 0.12em;
+.auth-sent {
+  margin: 0 0 8px;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--muted);
   text-transform: uppercase;
 }
+.auth-code-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border: 1px dashed var(--gold-dk);
+  background: rgba(200, 166, 63, 0.05);
+}
+.auth-code-box span { font-size: 8px; letter-spacing: 0.14em; color: var(--muted); text-transform: uppercase; }
+.auth-code-box strong { font-size: 21px; letter-spacing: 0.3em; color: var(--gold-hi); }
+.auth-code-meta { margin: 0 0 10px; font-size: 8.5px; letter-spacing: 0.12em; color: var(--dim); text-transform: uppercase; }
+.auth-links { display: flex; justify-content: center; gap: 18px; margin-top: 12px; }
+.auth-links[hidden] { display: none; }
 .auth-demo-note {
-  margin: 12px 0 0;
+  margin: 14px 0 0;
   font-size: 8.5px;
   letter-spacing: 0.12em;
   color: var(--dim);
