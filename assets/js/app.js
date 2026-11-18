@@ -155,6 +155,7 @@
   }
 
   function confidenceText(a) {
+    if (!a.english) return "NON-ENGLISH SAMPLE · UNRELIABLE";
     if (a.insufficient) return "LOW CONFIDENCE · SHORT SAMPLE";
     if (a.words < 60) return "LOW CONFIDENCE · " + a.words + " WORDS";
     if (a.words < 150) return "MODERATE CONFIDENCE";
@@ -164,9 +165,10 @@
   function renderFindings(a) {
     if (!a) { resetFindings(); return; }
     const lead = $("findingsLead");
-    lead.innerHTML =
-      '<span class="accent">' + a.verdict.sub + "</span> — " + a.score +
-      "/100 machine trace over " + a.words + " words, " + a.signals.length + " signals read.";
+    lead.innerHTML = a.insufficient
+      ? "Not enough text for a verdict — only " + a.words + " words screened."
+      : '<span class="accent">' + a.verdict.sub + "</span> — " + a.score +
+        "/100 machine trace over " + a.words + " words, " + a.signals.length + " signals read.";
 
     $("gaugeMarker").style.left = Math.max(0, Math.min(100, a.score)) + "%";
     $("scoreNum").textContent = a.score;

@@ -13,33 +13,18 @@
     "delve", "delves", "delved", "delving", "tapestry", "testament", "realm", "realms",
     "leverage", "leverages", "leveraged", "leveraging", "seamless", "seamlessly", "seamlessness",
     "pivotal", "multifaceted", "nuanced", "nuance", "intricate", "intricacies", "intricately",
-    "myriad", "plethora", "foster", "fosters", "fostered", "fostering", "harness", "harnesses",
-    "harnessing", "underscore", "underscores", "underscored", "underscoring", "embark",
-    "embarking", "elevate", "elevates", "elevated", "elevating", "unlock", "unlocks",
-    "unlocking", "reimagine", "revolutionize", "revolutionizing", "revolutionary",
-    "game-changer", "cutting-edge", "holistic", "synergy", "synergies", "paradigm",
-    "transformative", "empower", "empowers", "empowering", "curated", "bespoke", "vibrant",
-    "profound", "meticulous", "meticulously", "comprehensive", "comprehensively",
-    "crucial", "crucially", "vital", "notably", "moreover", "furthermore", "additionally",
-    "consequently", "ultimately", "nonetheless", "thereby", "whilst", "invaluable",
-    "unparalleled", "innovative", "streamline", "streamlining", "optimize", "optimizing",
-    "facilitate", "facilitating", "utilize", "utilizing", "cornerstone", "interplay",
-    "captivate", "captivating", "unwavering", "boasts", "boasting", "nestled", "showcases",
-    "showcasing", "harmonize", "harmonious", "juxtaposition", "dichotomy", "cacophony",
-    "transcend", "transcends", "traverse", "navigate", "navigating", "navigates",
-    "endeavor", "endeavors", "resonate", "resonates", "resonating", "tangible",
-    "actionable", "impactful", "learner", "dive", "endless", "boundless", "testament",
-    // narrative register (story-style generations)
-    "fascinating", "captivating", "enchanting", "ethereal", "serene", "majestic",
-    "breathtaking", "bustling", "whimsical", "tranquil", "lush", "unforgettable",
-    "remarkable", "extraordinary", "resilience", "resilient", "wisdom", "wonder",
-    "magical", "shimmering", "cascading", "immense", "spellbinding", "mesmerizing",
-    // italian register
-    "affascinante", "affascinanti", "incantevole", "incantevoli", "maestoso",
-    "maestosa", "maestosi", "etereo", "eterea", "vibrante", "vibranti", "olistico",
-    "olistica", "sinergia", "paradigma", "trasformativo", "inestimabile",
-    "inestimabili", "meticoloso", "meticolosa", "meticolosi", "senza precedenti",
-    "di fondamentale importanza"
+    "myriad", "plethora", "underscore", "underscores", "underscored", "underscoring",
+    "embark", "embarking", "elevate", "elevates", "elevated", "elevating",
+    "unlock", "unlocks", "unlocking", "reimagine", "revolutionize", "revolutionizing",
+    "revolutionary", "game-changer", "cutting-edge", "holistic", "synergy", "synergies",
+    "paradigm", "curated", "bespoke", "meticulous", "meticulously", "invaluable",
+    "unparalleled", "streamline", "streamlining", "utilize", "utilizing", "cornerstone",
+    "interplay", "captivate", "captivating", "unwavering", "boasts", "boasting", "nestled",
+    "showcases", "showcasing", "harmonize", "harmonious", "juxtaposition", "dichotomy",
+    "cacophony", "transcend", "transcends", "traverse", "resonate", "resonates", "resonating",
+    "tangible", "actionable", "impactful", "enchanting", "ethereal", "mesmerizing",
+    "spellbinding", "shimmering", "cascading", "whimsical", "breathtaking", "bustling",
+    "tranquil", "lush", "unforgettable"
   ];
 
   // Soft tells: ordinary words that pile up in machine prose.
@@ -51,71 +36,59 @@
     "potentially", "insight", "insights", "explore", "exploring", "diverse", "diversity",
     "dynamic", "complex", "complexity", "align", "aligned", "alignment", "enhance",
     "enhancing", "enhancement", "implement", "implementing", "implementation",
-    "sustainable", "accessible", "engagement", "solutions", "storytelling", "best",
-    "growing", "ensure", "provide", "providing", "support", "supporting", "overall",
-    "value", "quality", "strategic", "practical", "unique", "powerful", "creative",
-    // generic narrative vocabulary
-    "imagination", "passion", "adventure", "discovery", "mystery", "beauty", "magic",
-    "dream", "soul", "spirit", "heart", "journey", "wonderful", "curious", "ancient",
-    // italian formal vocabulary
-    "inoltre", "tuttavia", "pertanto", "fondamentale", "cruciale", "significativo",
-    "essenziale", "numerosi", "diverse", "garantire", "fornire", "migliorare",
-    "ottimizzare", "sostenibile", "innovativo", "complesso", "dinamico", "contesto",
-    "ambito", "prospettiva", "approccio", "processo", "potenziale", "soluzioni",
-    "rilevante", "importante", "fondamentali", "curioso", "curiosa", "curiosi",
-    "antica", "antico", "antiche", "magico", "magica", "splendido", "splendida",
-    "meraviglioso", "meravigliosa", "straordinario", "straordinaria", "notevole",
-    "significativi", "importanti", "numerose", "innumerevoli"
+    "sustainable", "accessible", "engagement", "solutions", "storytelling", "growing",
+    "provide", "providing", "support", "supporting", "overall", "value", "quality",
+    "strategic", "practical", "unique", "powerful", "creative",
+    // formal register that human policy writing also uses: low weight by design
+    "moreover", "furthermore", "additionally", "consequently", "ultimately", "nonetheless",
+    "thereby", "whilst", "notably", "thus", "comprehensive", "comprehensively", "crucial",
+    "crucially", "vital", "foster", "fosters", "fostered", "fostering", "harness",
+    "harnesses", "harnessing", "empower", "empowers", "empowering", "facilitate",
+    "facilitating", "navigate", "navigating", "navigates", "endeavor", "endeavors",
+    "transformative", "resilience", "resilient", "optimize", "optimizing", "innovative",
+    "vibrant", "profound", "fascinating"
   ];
 
   // Stock phrases: the scaffolding of generated prose.
   const STOCK_PHRASES = [
-    "it's important to note", "it is important to note", "it's worth noting",
-    "it is worth noting", "in today's fast-paced world", "in today's world",
-    "in the modern world", "in the ever-evolving", "ever-evolving landscape",
+    "it's important to note", "it is important to note", "it's worth noting", "it is worth noting",
+    "in today's fast-paced world", "in today's world", "in the modern world",
+    "in an increasingly interconnected world",
+    "in the ever-evolving", "ever-evolving landscape",
     "plays a crucial role", "plays a significant role", "plays a vital role",
-    "plays an important role", "a double-edged sword", "the key takeaway",
-    "in conclusion", "to sum up", "at the end of the day", "not only",
-    "dive into", "delve into", "in the realm of", "a testament to",
-    "navigating the landscape", "unlock the potential", "unlock the full potential",
-    "seamlessly integrate", "when it comes to", "let's explore", "here are some",
-    "if you're looking for", "whether you're a", "it depends on a variety of factors",
-    "there are several key", "broaden your horizons", "shed light on", "pave the way",
-    "a wide range of", "rich tapestry", "strike a balance", "push the boundaries",
-    "a myriad of", "a plethora of", "cannot be overstated", "it goes without saying",
-    "in this article", "in this guide", "this is where", "rest assured",
-    "look no further", "the perfect blend", "a growing number of", "the importance of",
-    "serves as a reminder", "serves as a", "this ensures that", "in other words",
-    "that said", "having said that", "first and foremost", "last but not least",
-    "the world of", "by leveraging", "a key aspect", "the ability to",
-    "is essential for", "play a key role", "in order to", "as we can see",
+    "plays an important role", "a double-edged sword", "the key takeaway", "in conclusion",
+    "to sum up", "at the end of the day", "delve into", "dive into", "in the realm of",
+    "a testament to", "navigating the landscape", "unlock the potential",
+    "unlock the full potential", "seamlessly integrate", "cannot be overstated",
+    "it goes without saying", "a myriad of", "a plethora of", "rich tapestry",
+    "strike a balance", "push the boundaries", "first and foremost", "last but not least",
+    "rest assured", "look no further", "the perfect blend", "let's explore", "here are some",
+    "if you're looking for", "whether you're a", "in this article", "in this guide",
+    "it depends on a variety of factors", "by leveraging", "as we can see",
+    "shed light on", "pave the way", "broaden your horizons", "serves as a reminder",
+    "navigate the complexities", "underscores the importance",
     // narrative scaffolding
-    "in the heart of", "a sense of", "couldn't help but", "little did", "from that day on",
-    "never looked back", "in that moment", "at that moment", "the air was thick",
-    "a world where", "in search of", "the secrets of", "a symbol of", "the essence of",
-    "the beauty of", "the power of", "a reminder that", "more than just", "is more than",
-    "a journey of", "the journey of", "filled with", "surrounded by", "bathed in",
-    "unknown lands", "firmly believed", "always learning", "new things", "endless imagination",
-    "true adventure", "plays of light", "the distant voice",
-    // italian scaffolding
-    "nel cuore di", "un mondo di", "è importante notare", "in conclusione",
-    "un'ampia gamma di", "un viaggio attraverso", "la bellezza di", "il potere di",
-    "senza dubbio", "in questo senso", "gioca un ruolo", "un ruolo cruciale",
-    "la magia di", "terre sconosciute", "senza fine"
+    "little did", "from that day on", "never looked back",
+    // announcement / personal-brand register
+    "thrilled to share", "excited to share", "humbled to announce", "humbled to share",
+    "i've had the privilege", "lessons i've learned", "lessons i'll carry",
+    "grateful for the journey", "here are three", "growth happens outside",
+    // assistant register
+    "let me know if you'd like", "let me know if you need", "would you like me to",
+    "here's a quick breakdown", "here's a quick", "hope this helps", "happy to help",
+    "it's never been easier", "let's break it down",
+    "the air was thick", "a world where", "unknown lands", "firmly believed",
+    "endless imagination", "true adventure", "plays of light", "the distant voice"
   ];
 
   const INFORMAL = [
     "lol", "lmao", "lmfao", "rofl", "tbh", "ngl", "imo", "imho", "idk", "idc",
     "bruh", "bro", "dude", "yeah", "yep", "nah", "nope", "kinda", "sorta", "gonna",
     "wanna", "gotta", "dunno", "wtf", "omg", "ugh", "meh", "haha", "heh", "yo",
-    "sup", "chill", "rip", "fr", "ong", "sus", "cringe", "hell", "damn", "crap",
+    "sup", "chill", "rip", "fr", "sus", "cringe", "damn", "crap",
     "anyways", "welp", "hmm", "eh", "nvm", "btw", "tbf", "afaik", "smh", "irl",
     "just", "really", "actually", "maybe", "probably", "honestly", "literally",
-    "basically", "totally", "super", "pretty", "stuff", "sorta", "dunno",
-    // italian chat markers
-    "tipo", "praticamente", "comunque", "boh", "cioè", "insomma", "vabbè",
-    "schifo", "figo", "dai", "mah", "abbastanza", "piuttosto", "proprio",
-    "magari", "almeno", "bella", "raga"
+    "basically", "totally"
   ];
 
   const COMMON = ("the be to of and a in that have i it for not on with he as you do at this but his by from " +
@@ -188,10 +161,9 @@
   const EMOJI_RE = (() => {
     try { return /\p{Extended_Pictographic}/gu; } catch (e) { return /([\u{1F300}-\u{1FAFF}])/gu; }
   })();
-  const ABSTRACT_RE = /\b[\p{L}]{4,}(?:tion|sion|ment|ity|ness|ance|ence|ization|isation|ism)\b/giu;
   const REPEAT_PUNCT_RE = /(\.{3,}|!{2,}|\?{2,}|!{1,}\?{1,})/g;
   const BULLET_RE = /^[ \t]*[-*•–][ \t]+/gm;
-  const NUMBERED_RE = /^[ \t]*\d+[.)][ \t]+/gm;
+  const NUMBERED_RE = /(?:^|\n)[ \t]*(?:\d+[.)]|\d\))[ \t]+/g;
   const BOLD_RE = /\*\*[^*\n]+\*\*/g;
   const HEADER_RE = /^[ \t]*#{1,6}[ \t]+/gm;
 
@@ -212,10 +184,10 @@
     const burstiness = avgSent ? sdSent / avgSent : 0;
 
     const tokens = (text.match(wordRe()) || []).map((w) => w.toLowerCase());
-    const unique = new Set(tokens);
     const ttrWindow = Math.min(tokens.length, 120);
     const ttr = ttrWindow ? new Set(tokens.slice(0, ttrWindow)).size / ttrWindow : 0;
-    const commonRatio = tokens.length
+    // share of high-frequency English function words — also a language sanity check
+    const englishRatio = tokens.length
       ? tokens.filter((w) => COMMON_SET.has(w)).length / tokens.length
       : 0;
 
@@ -229,7 +201,6 @@
     const curly = findAll(text, CURLY_RE).length;
     const ellipsis = findAll(text, ELLIPSIS_RE).length;
     const emoji = findAll(text, EMOJI_RE).length;
-    const abstractWords = findAll(text, ABSTRACT_RE).length;
     const repeated = findAll(text, REPEAT_PUNCT_RE).length;
     const bullets = findAll(text, BULLET_RE).length;
     const numbered = findAll(text, NUMBERED_RE).length;
@@ -237,7 +208,7 @@
     const headers = findAll(text, HEADER_RE).length;
     const exclaim = (text.match(/!/g) || []).length;
     const question = (text.match(/\?/g) || []).length;
-    const firstPerson = (text.match(/\b(I|I'm|I've|I'd|I'll|my|me|mine|we|our|io|mio|mia|miei|noi|nostro|nostra|mi)\b/g) || []).length;
+    const firstPerson = (text.match(/\b(I|I'm|I've|I'd|I'll|my|me|mine|we|our)\b/g) || []).length;
 
     // mechanical polish: capitals, terminal punctuation, comma rhythm
     const commas = (text.match(/,/g) || []).length;
@@ -266,17 +237,16 @@
     return {
       chars, words, sentences: sents.length, paragraphs: paragraphs.length,
       avgSent, sdSent, burstiness, lens,
-      ttr, commonRatio, uniqueRatio: tokens.length ? unique.size / tokens.length : 0,
+      ttr, englishRatio, english: englishRatio >= 0.16,
       aiHits, softHits, stockHits, informalHits, contractions,
-      emDash, enDash, curly, ellipsis, emoji, abstractWords, repeated,
+      emDash, enDash, curly, ellipsis, emoji, repeated,
       bullets, numbered, bold, headers, exclaim, question, firstPerson,
       paragraphSymmetry: pAvg ? pSd / pAvg : 0,
       aiPer100: per100(aiHits.length),
       softPer100: per100(softHits.length),
       stockPer100: per100(stockHits.length),
-      informalPer100: per100(informalHits.length + repeated + informalHits.length),
+      informalPer100: per100(informalHits.length + repeated),
       contractionPer100: per100(contractions.length),
-      abstractPer100: per100(abstractWords),
       emDashPer1k: per1k(emDash + enDash),
       firstPersonPer100: per100(firstPerson),
       commas, capsStartRatio: sents.length ? capsStart / sents.length : 0,
@@ -291,9 +261,9 @@
   /* ── signal definitions ───────────────────────────────────────── */
 
   const WEIGHTS = {
-    chat:   { lexicon: 18, stock: 14, rhythm: 18, anchor: 10, format: 8,  voice: 16, polish: 10, baseline: 8 },
-    forum:  { lexicon: 22, stock: 16, rhythm: 16, anchor: 10, format: 10, voice: 10, polish: 8,  baseline: 8 },
-    formal: { lexicon: 24, stock: 18, rhythm: 18, anchor: 8,  format: 12, voice: 4,  polish: 6,  baseline: 4 }
+    chat:   { lexicon: 20, stock: 18, rhythm: 22, anchor: 8, format: 12, voice: 18, baseline: 8 },
+    forum:  { lexicon: 22, stock: 18, rhythm: 20, anchor: 8, format: 12, voice: 12, baseline: 8 },
+    formal: { lexicon: 26, stock: 20, rhythm: 12, anchor: 18, format: 10, voice: 4,  baseline: 4 }
   };
 
   function topPhrases(hits, n) {
@@ -353,44 +323,63 @@
       });
     }
 
-    /* 4 — concrete anchors */
+    /* 4 — concrete anchors (corroborating only) */
     {
-      const susp = clamp(1 - norm(m.anchorPer100, 0.5, 4.0), 0, 1);
+      // capped: a text with no numbers is not proof of anything on its own
+      const susp = clamp(1 - norm(m.anchorPer100, 0.5, 4.0), 0, 1) * 0.6;
       out.push({
         id: "anchor", label: "CONCRETE ANCHORS",
         value: round(susp * 100), weight: w.anchor, susp,
-        note: `${m.anchors} hard reference${m.anchors === 1 ? "" : "s"} in ${m.words} words (${m.anchorPer100.toFixed(1)} per 100): numbers, dates, names, checkable detail. Generated prose tends to stay general; lived accounts leak specifics you can verify.`
+        note: `${m.anchors} hard reference${m.anchors === 1 ? "" : "s"} in ${m.words} words (${m.anchorPer100.toFixed(1)} per 100): numbers, dates, names, checkable detail. Capped at 60 — an absence of specifics corroborates, it never decides alone.`
       });
     }
 
-    /* 5 — formatting & typography */
+    /* 5 — formatting: typography and mechanical polish */
     {
       const em = norm(m.emDashPer1k, 0.05, 1.7);
       const typographic = m.curly > 0 || m.ellipsis > 0 ? 0.65 : 0;
-      const markdown = norm(m.bold * 2 + m.headers + m.bullets * 0.5 + m.numbered * 0.5, 0, 3);
+      const markdown = norm(m.bold * 2 + m.headers + m.bullets * 0.5 + m.numbered * 0.7, 0, 3);
       const symmetry = m.sentences >= 4 ? norm(0.85 - m.paragraphSymmetry, 0, 0.62) * 0.6 : 0;
-      const susp = clamp(em * 0.42 + typographic * 0.18 + markdown * 0.28 + symmetry * 0.22, 0, 1);
+
+      let polish = clamp(
+        norm(m.capsStartRatio, 0.5, 1) * 0.42 +
+        norm(m.terminalRatio, 0.6, 1) * 0.28 +
+        norm(m.commaPerSentence, 0.35, 2.3) * 0.3,
+        0, 1
+      );
+      if (opts.context === "formal") polish = 0.5 + (polish - 0.5) * 0.35;
+
+      const susp = clamp(
+        em * 0.26 + typographic * 0.1 + markdown * 0.2 + symmetry * 0.14 + polish * 0.38,
+        0, 1
+      );
       const bits = [];
       if (m.emDash + m.enDash) bits.push(`${m.emDash + m.enDash} em/en dash${m.emDash + m.enDash === 1 ? "" : "es"}`);
       if (m.curly) bits.push(`${m.curly} curly quote${m.curly === 1 ? "" : "s"}`);
-      if (m.bullets + m.numbered) bits.push(`${m.bullets + m.numbered} list marker${m.bullets + m.numbered === 1 ? "" : "s"}`);
       if (m.bold + m.headers) bits.push(`${m.bold + m.headers} markdown emphasis`);
+      if (m.bullets + m.numbered) bits.push(`${m.bullets + m.numbered} list marker${m.bullets + m.numbered === 1 ? "" : "s"}`);
       if (m.emoji) bits.push(`${m.emoji} emoji`);
+      if (m.sentences >= 3 && m.capsStartRatio >= 0.95 && m.terminalRatio >= 0.95) {
+        bits.push("every sentence capitalised and closed");
+      }
       out.push({
         id: "format", label: "FORMATTING TELLS",
         value: round(susp * 100), weight: w.format, susp,
         note: bits.length
-          ? `Typographic residue: ${bits.join(", ")}. Keyboard layouts rarely emit em dashes or curly quotes; pasted generations carry them in. Balanced paragraph lengths add to this score.`
-          : `Plain ASCII, no list scaffolding, no typographic residue. This row contributes nothing.`
+          ? `Surface shape: ${bits.join(", ")}. ${Math.round(m.capsStartRatio * 100)}% of sentences open with a capital and ${m.commaPerSentence.toFixed(1)} commas per sentence — live typing leaves ragged edges.`
+          : `Plain ASCII, no markdown, uneven mechanics. This row contributes nothing.`
       });
     }
 
     /* 6 — human voice */
     {
+      // density plus absolute counts: long-form human writing dilutes per-100 rates
       const humanMarks =
         m.informalPer100 * 1.1 +
         m.contractionPer100 * 0.7 +
         m.firstPersonPer100 * 0.35 +
+        Math.min(m.informalHits.length, 5) * 0.3 +
+        Math.min(m.contractions.length, 4) * 0.35 +
         (m.exclaim ? Math.min(m.exclaim, 6) : 0) * 0.35;
       let susp = clamp(1 - norm(humanMarks, 0.4, 7), 0, 1);
       if (opts.context === "formal") susp = 0.5 + (susp - 0.5) * 0.4;
@@ -407,23 +396,7 @@
       });
     }
 
-    /* 7 — mechanical polish */
-    {
-      let susp = clamp(
-        norm(m.capsStartRatio, 0.5, 1) * 0.42 +
-        norm(m.terminalRatio, 0.6, 1) * 0.28 +
-        norm(m.commaPerSentence, 0.35, 2.3) * 0.3,
-        0, 1
-      );
-      if (opts.context === "formal") susp = 0.5 + (susp - 0.5) * 0.35;
-      out.push({
-        id: "polish", label: "MECHANICAL POLISH",
-        value: round(susp * 100), weight: w.polish, susp,
-        note: `${Math.round(m.capsStartRatio * 100)}% of sentences open with a capital, ${Math.round(m.terminalRatio * 100)}% close with punctuation, ${m.commaPerSentence.toFixed(1)} commas per sentence. Live typing leaves ragged edges — lowercase starts, missing full stops, comma-light lines.`
-      });
-    }
-
-    /* 8 — baseline divergence (optional) */
+    /* 6 — baseline divergence (optional) */
     if (m._baseline) {
       const b = m._baseline;
       const rows = [
@@ -561,6 +534,17 @@
     const context = opts.context || "chat";
     const m = measure(text || "");
 
+    // nothing to read: do not invent a score
+    if (m.words === 0) {
+      return {
+        score: 0, english: false, band: "LOW", verdict: verdictFor(0),
+        signals: [], topSignals: [], anomalies: [], metrics: m, words: 0,
+        lowConfidence: true, insufficient: true, followUps: [],
+        highlightHtml: '<p class="empty-note">No sample loaded.</p>',
+        meta: { sentences: 0, avgSentence: 0, burstiness: 0, lexicalRange: 0 }
+      };
+    }
+
     if (opts.baseline && countWords(opts.baseline) >= 25) {
       m._baseline = measure(opts.baseline);
       m._baselineSince = true;
@@ -576,7 +560,11 @@
     if (lowN) raw = 50 + (raw - 50) * (m.words < 22 ? 0.28 : 0.55);
 
     const score = clamp(Math.round(raw), 0, 100);
-    const verdict = verdictFor(score);
+    let verdict = verdictFor(score);
+    // a handful of words cannot support a verdict, whatever the arithmetic says
+    if (m.words < 25) {
+      verdict = { key: "mid", main: "INSUFFICIENT SAMPLE", sub: "SEND MORE TEXT", band: verdict.band, state: "mid" };
+    }
 
     const topContribution = signals
       .map((s) => ({ s, c: s.susp * s.weight / totalWeight * 100 }))
@@ -584,6 +572,7 @@
 
     return {
       score,
+      english: m.english,
       band: verdict.band,
       verdict,
       signals,
@@ -592,7 +581,7 @@
       metrics: m,
       words: m.words,
       lowConfidence: m.words < 60,
-      insufficient: m.words < 22,
+      insufficient: m.words < 25,
       followUps: buildFollowUps(m, signals, score),
       highlightHtml: highlight(text || "", m),
       meta: {

@@ -4,6 +4,10 @@ A retro-terminal screening console that estimates how much machine-generated tex
 is in a sample, and shows *why*. Everything runs in the browser: no server, no model
 call, no uploads.
 
+**English only.** Lexicons and baselines are tuned for English prose. A sample that
+does not look English is flagged `NON-ENGLISH SAMPLE · UNRELIABLE` and its score
+should not be trusted.
+
 **Live scoring is heuristic stylometry. It is indicative, not proof, and false
 positives are expected.** Read the signals, not just the number.
 
@@ -14,10 +18,9 @@ positives are expected.** Read the signals, not just the number.
 | AI lexicon | Density of over-represented LLM vocabulary (“delve”, “leverage”, “robust”, “tapestry”). |
 | Stock phrases | Whole discourse templates: “it's important to note”, “in conclusion”, “a double-edged sword”. |
 | Sentence rhythm | Burstiness — the spread of sentence lengths. Humans are lumpy; generated prose keeps tempo. |
-| Concrete anchors | Numbers, dates, proper nouns and checkable detail. Generated prose tends to stay general. |
-| Formatting tells | Em dashes, curly quotes, markdown emphasis, lists, paragraph symmetry. |
+| Concrete anchors | Numbers, dates, proper names, checkable detail. Capped at 60: an absence of specifics corroborates, it never decides alone. |
+| Formatting tells | Em dashes, curly quotes, markdown, lists, paragraph symmetry, plus mechanical polish (capitals, terminal punctuation, comma rhythm). |
 | Human voice | Contractions, slang, fillers, first person, exclamation. Their absence is itself a signal. |
-| Mechanical polish | Sentence-initial capitals, terminal punctuation and comma rhythm — live typing leaves ragged edges. |
 | Baseline divergence | Optional. Compares the sample against 10–20 messages you know are the same person's. |
 
 The verdict bar maps to `LOW` (0–29), `READ CLOSELY` (30–59) and `VERIFY IN PERSON`
