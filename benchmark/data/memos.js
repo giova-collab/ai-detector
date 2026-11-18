@@ -23,7 +23,7 @@ module.exports = [
   {
     id: "memo_cyber",
     human: `The intrusion detected on 4 April reached the mail server but not the case management system. Forensics attributes it to a credential phishing campaign; no indication of a state actor. We reset 62 accounts and enabled hardware tokens for the executive floor. The vendor's report is due 15 May. Recommend we notify the host government only after the report, and prepare a short press line.`,
-    ai: `The intrusion detected on 4 April reached the mail server but not the case management system. Forensics attributes it to a credential phishing campaign, with no indication of a state actor. We reset 62 accounts and enabled hardware tokens for the executive floor. The vendor's report is due on 15 May. I recommend notifying the host government only after the report and preparing a short press line.`,
+    ai: `Forensics has linked the 4 April intrusion to credential phishing rather than a state actor. The mail server was affected; the case management system was not. We have reset 62 accounts and moved the executive floor to hardware tokens. The vendor's report is expected on 15 May. My recommendation is to brief the host government after that report and draft a short press line now.`,
   },
   {
     id: "memo_cultural",

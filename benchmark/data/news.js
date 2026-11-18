@@ -28,7 +28,7 @@ module.exports = [
   {
     id: "news_rates",
     human: `FRANKFURT — The central bank held its key rate at 3.25 percent on Thursday, as expected, but two policymakers dissented in favor of a cut. The president said inflation was "moving in the right direction" but warned that services prices remained sticky. The next meeting is in June.`,
-    ai: `The central bank held its key rate at 3.25 percent on Thursday, as expected, although two policymakers dissented in favor of a cut. The president said inflation was "moving in the right direction" but warned that services prices remained sticky. The next meeting is scheduled for June.`,
+    ai: `Two policymakers dissented from the central bank's decision on Thursday to keep its key rate at 3.25 percent, arguing for a cut. The move had been widely expected. Speaking after the announcement, the president described inflation as "moving in the right direction" while flagging persistent services prices. The next meeting is set for June.`,
   },
   {
     id: "news_summit",
@@ -43,11 +43,11 @@ module.exports = [
   {
     id: "news_ferry",
     human: `PORT VELA — A ferry carrying 214 passengers ran aground on a sandbank late on Tuesday, the coast guard said. All passengers were evacuated by dawn; three were treated for hypothermia. The vessel remains stuck and the channel is closed to larger ships. Investigators are due on site on Thursday.`,
-    ai: `A ferry carrying 214 passengers ran aground on a sandbank late on Tuesday, according to the coast guard. All passengers were evacuated by dawn, and three were treated for hypothermia. The vessel remains stuck, and the channel is closed to larger ships. Investigators are due on site on Thursday.`,
+    ai: `The coast guard reports that a ferry with 214 people aboard struck a sandbank late on Tuesday. By dawn everyone had been evacuated, and three passengers were treated for hypothermia. The ship is still aground, blocking the channel to larger vessels; investigators arrive on Thursday.`,
   },
   {
     id: "news_election",
     human: `SORENIA — The opposition National Union won 47 of 120 seats in Sunday's election, according to the final count, ending a decade of rule by the Civic Front. Turnout was 61 percent. The Union's leader, Mira Sol, said she would begin coalition talks on Monday. The president is due to name a prime minister within 30 days.`,
-    ai: `The opposition National Union won 47 of 120 seats in Sunday's election, according to the final count, ending a decade of rule by the Civic Front. Turnout stood at 61 percent. The Union's leader, Mira Sol, said she would begin coalition talks on Monday. The president is due to name a prime minister within 30 days.`,
+    ai: `Final results from Sunday's election give the opposition National Union 47 of 120 seats, ending ten years of Civic Front government. Turnout reached 61 percent. Mira Sol, the Union's leader, plans to open coalition talks on Monday, and the president has 30 days to appoint a prime minister.`,
   },
 ];
