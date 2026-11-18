@@ -28,7 +28,18 @@
     "showcasing", "harmonize", "harmonious", "juxtaposition", "dichotomy", "cacophony",
     "transcend", "transcends", "traverse", "navigate", "navigating", "navigates",
     "endeavor", "endeavors", "resonate", "resonates", "resonating", "tangible",
-    "actionable", "impactful", "learner", "dive", "endless", "boundless", "testament"
+    "actionable", "impactful", "learner", "dive", "endless", "boundless", "testament",
+    // narrative register (story-style generations)
+    "fascinating", "captivating", "enchanting", "ethereal", "serene", "majestic",
+    "breathtaking", "bustling", "whimsical", "tranquil", "lush", "unforgettable",
+    "remarkable", "extraordinary", "resilience", "resilient", "wisdom", "wonder",
+    "magical", "shimmering", "cascading", "immense", "spellbinding", "mesmerizing",
+    // italian register
+    "affascinante", "affascinanti", "incantevole", "incantevoli", "maestoso",
+    "maestosa", "maestosi", "etereo", "eterea", "vibrante", "vibranti", "olistico",
+    "olistica", "sinergia", "paradigma", "trasformativo", "inestimabile",
+    "inestimabili", "meticoloso", "meticolosa", "meticolosi", "senza precedenti",
+    "di fondamentale importanza"
   ];
 
   // Soft tells: ordinary words that pile up in machine prose.
@@ -42,7 +53,19 @@
     "enhancing", "enhancement", "implement", "implementing", "implementation",
     "sustainable", "accessible", "engagement", "solutions", "storytelling", "best",
     "growing", "ensure", "provide", "providing", "support", "supporting", "overall",
-    "value", "quality", "strategic", "practical", "unique", "powerful", "creative"
+    "value", "quality", "strategic", "practical", "unique", "powerful", "creative",
+    // generic narrative vocabulary
+    "imagination", "passion", "adventure", "discovery", "mystery", "beauty", "magic",
+    "dream", "soul", "spirit", "heart", "journey", "wonderful", "curious", "ancient",
+    // italian formal vocabulary
+    "inoltre", "tuttavia", "pertanto", "fondamentale", "cruciale", "significativo",
+    "essenziale", "numerosi", "diverse", "garantire", "fornire", "migliorare",
+    "ottimizzare", "sostenibile", "innovativo", "complesso", "dinamico", "contesto",
+    "ambito", "prospettiva", "approccio", "processo", "potenziale", "soluzioni",
+    "rilevante", "importante", "fondamentali", "curioso", "curiosa", "curiosi",
+    "antica", "antico", "antiche", "magico", "magica", "splendido", "splendida",
+    "meraviglioso", "meravigliosa", "straordinario", "straordinaria", "notevole",
+    "significativi", "importanti", "numerose", "innumerevoli"
   ];
 
   // Stock phrases: the scaffolding of generated prose.
@@ -65,7 +88,20 @@
     "serves as a reminder", "serves as a", "this ensures that", "in other words",
     "that said", "having said that", "first and foremost", "last but not least",
     "the world of", "by leveraging", "a key aspect", "the ability to",
-    "is essential for", "play a key role", "in order to", "as we can see"
+    "is essential for", "play a key role", "in order to", "as we can see",
+    // narrative scaffolding
+    "in the heart of", "a sense of", "couldn't help but", "little did", "from that day on",
+    "never looked back", "in that moment", "at that moment", "the air was thick",
+    "a world where", "in search of", "the secrets of", "a symbol of", "the essence of",
+    "the beauty of", "the power of", "a reminder that", "more than just", "is more than",
+    "a journey of", "the journey of", "filled with", "surrounded by", "bathed in",
+    "unknown lands", "firmly believed", "always learning", "new things", "endless imagination",
+    "true adventure", "plays of light", "the distant voice",
+    // italian scaffolding
+    "nel cuore di", "un mondo di", "è importante notare", "in conclusione",
+    "un'ampia gamma di", "un viaggio attraverso", "la bellezza di", "il potere di",
+    "senza dubbio", "in questo senso", "gioca un ruolo", "un ruolo cruciale",
+    "la magia di", "terre sconosciute", "senza fine"
   ];
 
   const INFORMAL = [
@@ -73,7 +109,13 @@
     "bruh", "bro", "dude", "yeah", "yep", "nah", "nope", "kinda", "sorta", "gonna",
     "wanna", "gotta", "dunno", "wtf", "omg", "ugh", "meh", "haha", "heh", "yo",
     "sup", "chill", "rip", "fr", "ong", "sus", "cringe", "hell", "damn", "crap",
-    "anyways", "welp", "hmm", "eh", "nvm", "btw", "tbf", "afaik", "smh", "irl"
+    "anyways", "welp", "hmm", "eh", "nvm", "btw", "tbf", "afaik", "smh", "irl",
+    "just", "really", "actually", "maybe", "probably", "honestly", "literally",
+    "basically", "totally", "super", "pretty", "stuff", "sorta", "dunno",
+    // italian chat markers
+    "tipo", "praticamente", "comunque", "boh", "cioè", "insomma", "vabbè",
+    "schifo", "figo", "dai", "mah", "abbastanza", "piuttosto", "proprio",
+    "magari", "almeno", "bella", "raga"
   ];
 
   const COMMON = ("the be to of and a in that have i it for not on with he as you do at this but his by from " +
@@ -195,7 +237,22 @@
     const headers = findAll(text, HEADER_RE).length;
     const exclaim = (text.match(/!/g) || []).length;
     const question = (text.match(/\?/g) || []).length;
-    const firstPerson = (text.match(/\b(I|I'm|I've|I'd|I'll|my|me|mine|we|our)\b/g) || []).length;
+    const firstPerson = (text.match(/\b(I|I'm|I've|I'd|I'll|my|me|mine|we|our|io|mio|mia|miei|noi|nostro|nostra|mi)\b/g) || []).length;
+
+    // mechanical polish: capitals, terminal punctuation, comma rhythm
+    const commas = (text.match(/,/g) || []).length;
+    const capsStart = sents.filter((s) => /^["“'('\-\s]*[\p{Lu}\p{N}]/u.test(s)).length;
+    const terminal = sents.filter((s) => /[.!?…]["'”’)\]]*$/.test(s.trim())).length;
+
+    // concrete anchors: numbers and proper nouns that could be checked
+    let proper = 0;
+    sents.forEach((s) => {
+      s.split(/\s+/).slice(1).forEach((tok) => {
+        const clean = tok.replace(/^["“'('\[]+/, "").replace(/[^\p{L}]/gu, "");
+        if (/^\p{Lu}[\p{Ll}]{2,}$/u.test(clean) && !COMMON_SET.has(clean.toLowerCase())) proper++;
+      });
+    });
+    const digits = (text.match(/\b\d[\d.,]*\b/g) || []).length;
 
     const paragraphLens = paragraphs.map(countWords).filter((n) => n > 0);
     const pAvg = paragraphLens.length ? paragraphLens.reduce((a, b) => a + b, 0) / paragraphLens.length : 0;
@@ -222,6 +279,11 @@
       abstractPer100: per100(abstractWords),
       emDashPer1k: per1k(emDash + enDash),
       firstPersonPer100: per100(firstPerson),
+      commas, capsStartRatio: sents.length ? capsStart / sents.length : 0,
+      terminalRatio: sents.length ? terminal / sents.length : 0,
+      commaPerSentence: sents.length ? commas / sents.length : 0,
+      anchors: proper + digits,
+      anchorPer100: per100(proper + digits),
       tokens
     };
   }
@@ -229,9 +291,9 @@
   /* ── signal definitions ───────────────────────────────────────── */
 
   const WEIGHTS = {
-    chat:   { lexicon: 20, stock: 18, rhythm: 18, smooth: 12, format: 10, voice: 14, baseline: 8 },
-    forum:  { lexicon: 24, stock: 18, rhythm: 16, smooth: 14, format: 12, voice: 8,  baseline: 8 },
-    formal: { lexicon: 26, stock: 20, rhythm: 18, smooth: 16, format: 12, voice: 4,  baseline: 4 }
+    chat:   { lexicon: 18, stock: 14, rhythm: 18, anchor: 10, format: 8,  voice: 16, polish: 10, baseline: 8 },
+    forum:  { lexicon: 22, stock: 16, rhythm: 16, anchor: 10, format: 10, voice: 10, polish: 8,  baseline: 8 },
+    formal: { lexicon: 24, stock: 18, rhythm: 18, anchor: 8,  format: 12, voice: 4,  polish: 6,  baseline: 4 }
   };
 
   function topPhrases(hits, n) {
@@ -291,15 +353,13 @@
       });
     }
 
-    /* 4 — lexical smoothness (perplexity proxy) */
+    /* 4 — concrete anchors */
     {
-      const common = norm(m.commonRatio, 0.4, 0.72);
-      const abstract = norm(m.abstractPer100, 0.2, 5.2);
-      const susp = clamp(common * 0.42 + abstract * 0.58, 0, 1);
+      const susp = clamp(1 - norm(m.anchorPer100, 0.5, 4.0), 0, 1);
       out.push({
-        id: "smooth", label: "LEXICAL SMOOTHNESS",
-        value: round(susp * 100), weight: w.smooth, susp,
-        note: `${(m.commonRatio * 100).toFixed(0)}% of words are high-frequency function words and ${m.abstractPer100.toFixed(1)} per 100 are abstract nouns (-tion, -ment, -ity, -ness). Predictable vocabulary plus nominalisation is the signature of low-perplexity output; humans reach for odd, specific words.`
+        id: "anchor", label: "CONCRETE ANCHORS",
+        value: round(susp * 100), weight: w.anchor, susp,
+        note: `${m.anchors} hard reference${m.anchors === 1 ? "" : "s"} in ${m.words} words (${m.anchorPer100.toFixed(1)} per 100): numbers, dates, names, checkable detail. Generated prose tends to stay general; lived accounts leak specifics you can verify.`
       });
     }
 
@@ -347,7 +407,23 @@
       });
     }
 
-    /* 7 — baseline divergence (optional) */
+    /* 7 — mechanical polish */
+    {
+      let susp = clamp(
+        norm(m.capsStartRatio, 0.5, 1) * 0.42 +
+        norm(m.terminalRatio, 0.6, 1) * 0.28 +
+        norm(m.commaPerSentence, 0.35, 2.3) * 0.3,
+        0, 1
+      );
+      if (opts.context === "formal") susp = 0.5 + (susp - 0.5) * 0.35;
+      out.push({
+        id: "polish", label: "MECHANICAL POLISH",
+        value: round(susp * 100), weight: w.polish, susp,
+        note: `${Math.round(m.capsStartRatio * 100)}% of sentences open with a capital, ${Math.round(m.terminalRatio * 100)}% close with punctuation, ${m.commaPerSentence.toFixed(1)} commas per sentence. Live typing leaves ragged edges — lowercase starts, missing full stops, comma-light lines.`
+      });
+    }
+
+    /* 8 — baseline divergence (optional) */
     if (m._baseline) {
       const b = m._baseline;
       const rows = [
@@ -398,8 +474,9 @@
       list.push("Have them retype the message live, plain text, no formatting. Em dashes and curly quotes rarely survive a phone keyboard.");
     }
 
-    if (by("voice") && by("voice").susp > 0.55) {
-      list.push("Ask for one concrete detail — a name, a date, a price, an address. Machine prose stays abstract; lived accounts leak specifics.");
+    const anchor = by("anchor");
+    if ((anchor && anchor.susp > 0.5) || (by("voice") && by("voice").susp > 0.55)) {
+      list.push("Ask for one concrete detail — a name, a date, a price, an address. Machine prose stays general; lived accounts leak specifics.");
     }
 
     if (m._baselineSince && m.voiceMatch !== undefined) {

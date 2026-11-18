@@ -198,7 +198,7 @@
   function renderSignals(a) {
     const box = $("signalList");
     if (!a) {
-      box.innerHTML = '<p class="empty-note">No sample screened. Six signals are waiting.</p>';
+      box.innerHTML = '<p class="empty-note">No sample screened. The signals are waiting.</p>';
       $("signalCount").textContent = "";
       return;
     }

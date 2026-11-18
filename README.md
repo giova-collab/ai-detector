@@ -14,14 +14,17 @@ positives are expected.** Read the signals, not just the number.
 | AI lexicon | Density of over-represented LLM vocabulary (“delve”, “leverage”, “robust”, “tapestry”). |
 | Stock phrases | Whole discourse templates: “it's important to note”, “in conclusion”, “a double-edged sword”. |
 | Sentence rhythm | Burstiness — the spread of sentence lengths. Humans are lumpy; generated prose keeps tempo. |
-| Lexical smoothness | High-frequency vocabulary plus abstract nouns (-tion, -ment, -ity) = low-perplexity output. |
+| Concrete anchors | Numbers, dates, proper nouns and checkable detail. Generated prose tends to stay general. |
 | Formatting tells | Em dashes, curly quotes, markdown emphasis, lists, paragraph symmetry. |
-| Human voice | Contractions, slang, first person, exclamation. Their absence is itself a signal. |
+| Human voice | Contractions, slang, fillers, first person, exclamation. Their absence is itself a signal. |
+| Mechanical polish | Sentence-initial capitals, terminal punctuation and comma rhythm — live typing leaves ragged edges. |
 | Baseline divergence | Optional. Compares the sample against 10–20 messages you know are the same person's. |
 
 The verdict bar maps to `LOW` (0–29), `READ CLOSELY` (30–59) and `VERIFY IN PERSON`
 (60–100). Under ~60 words the score is deliberately pulled toward the middle and
-labelled low confidence.
+labelled low confidence. The **context** selector matters: formal documents legitimately
+have no contractions and even pacing, so voice and polish are weighted down there, while
+chat samples are judged against how people actually type.
 
 ## Using it
 
