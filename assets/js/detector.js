@@ -81,6 +81,10 @@
     "endless imagination", "true adventure", "plays of light", "the distant voice"
   ];
 
+  // Assistant-register scaffolding: near-exclusive to chat-model output, unlike
+  // "in conclusion" or "hope this helps", which humans also write.
+  const ASSISTANT_RE = /^(here's a quick|let me know if you|would you like me to|let's break it down)/i;
+
   const INFORMAL = [
     "lol", "lmao", "lmfao", "rofl", "tbh", "ngl", "imo", "imho", "idk", "idc",
     "bruh", "bro", "dude", "yeah", "yep", "nah", "nope", "kinda", "sorta", "gonna",
@@ -124,10 +128,22 @@
     return m ? m.length : 0;
   }
 
-  function splitSentences(text) {
+  // Abbreviations are not sentence ends: without this, "U.S." and "U.K."
+  // shatter cables into fragments and distort every rhythm/format metric.
+  const ABBREV_RE = /\b(?:Mr|Mrs|Ms|Dr|Prof|Sr|Jr|St|Rev|Gen|Col|Lt|Sgt|Capt|Cmdr|Amb|Sec|Dept|Gov|Sen|Rep|No|Vol|vs|etc|Inc|Co|Corp|Ltd|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec|Art|Sect|Ave|Blvd|Rd)\./gi;
+  const DOT = "\u0001";
+
+  function protectAbbrev(text) {
     return text
+      .replace(/\b(?:[A-Za-z]\.){2,}/g, (m) => m.split(".").join(DOT))
+      .replace(ABBREV_RE, (m) => m.slice(0, -1) + DOT)
+      .replace(/\b([A-Z])\.(?=\s)/g, "$1" + DOT);
+  }
+
+  function splitSentences(text) {
+    return protectAbbrev(text)
       .split(/(?<=[.!?…])["'”’)]*\s+|\n+/)
-      .map((s) => s.trim())
+      .map((s) => s.trim().split(DOT).join("."))
       .filter((s) => s && /[\p{L}\p{N}]/u.test(s));
   }
 
@@ -183,12 +199,16 @@
     const sdSent = Math.sqrt(variance);
     const burstiness = avgSent ? sdSent / avgSent : 0;
 
-    const tokens = (text.match(wordRe()) || []).map((w) => w.toLowerCase());
+    const rawTokens = text.match(wordRe()) || [];
+    const tokens = rawTokens.map((w) => w.toLowerCase());
     const ttrWindow = Math.min(tokens.length, 120);
     const ttr = ttrWindow ? new Set(tokens.slice(0, ttrWindow)).size / ttrWindow : 0;
-    // share of high-frequency English function words — also a language sanity check
-    const englishRatio = tokens.length
-      ? tokens.filter((w) => COMMON_SET.has(w)).length / tokens.length
+    // share of high-frequency English function words — also a language sanity check.
+    // Acronyms and numbers are excluded: a cable full of NATO, EU and FOB tokens
+    // is still English, and counting them as words understates the ratio.
+    const langTokens = rawTokens.filter((t) => !/^[A-Z]{2,}$/.test(t) && !/\d/.test(t));
+    const englishRatio = langTokens.length
+      ? langTokens.filter((w) => COMMON_SET.has(w.toLowerCase())).length / langTokens.length
       : 0;
 
     const aiHits = findAll(text, AI_RE);
@@ -224,6 +244,11 @@
       });
     });
     const digits = (text.match(/\b\d[\d.,]*\b/g) || []).length;
+    // acronyms are checkable specifics too (NATO, EU, U.S.); count distinct ones
+    const acronyms = new Set();
+    (text.match(/\b[A-Z]{2,6}\b/g) || []).forEach((a) => { if (a !== "AI") acronyms.add(a); });
+    (text.match(/\b(?:[A-Z]\.){2,6}/g) || []).forEach((a) => acronyms.add(a.split(".").join("")));
+    const anchors = proper + digits + Math.min(acronyms.size, 4);
 
     const paragraphLens = paragraphs.map(countWords).filter((n) => n > 0);
     const pAvg = paragraphLens.length ? paragraphLens.reduce((a, b) => a + b, 0) / paragraphLens.length : 0;
@@ -237,7 +262,7 @@
     return {
       chars, words, sentences: sents.length, paragraphs: paragraphs.length,
       avgSent, sdSent, burstiness, lens,
-      ttr, englishRatio, english: englishRatio >= 0.16,
+      ttr, englishRatio, english: englishRatio >= (words >= 40 ? 0.16 : 0.08),
       aiHits, softHits, stockHits, informalHits, contractions,
       emDash, enDash, curly, ellipsis, emoji, repeated,
       bullets, numbered, bold, headers, exclaim, question, firstPerson,
@@ -252,8 +277,8 @@
       commas, capsStartRatio: sents.length ? capsStart / sents.length : 0,
       terminalRatio: sents.length ? terminal / sents.length : 0,
       commaPerSentence: sents.length ? commas / sents.length : 0,
-      anchors: proper + digits,
-      anchorPer100: per100(proper + digits),
+      anchors,
+      anchorPer100: per100(anchors),
       tokens
     };
   }
@@ -295,9 +320,11 @@
 
     /* 2 — stock phrases */
     {
-      const susp = m.words < 25
-        ? 0.5 + (norm(m.stockPer100, 0, 2.2) - 0.5) * 0.5
-        : norm(m.stockPer100, 0, 2.0);
+      // saturation at ~4 templates per 100 words: two stock phrases in a
+      // 90-word essay is ordinary student prose, not a machine signature
+      const base = norm(m.stockPer100, 0.2, 4.0);
+      let susp = m.words < 25 ? 0.5 + (base - 0.5) * 0.5 : base;
+      if (m.stockHits.some((h) => ASSISTANT_RE.test(h.phrase))) susp = 1;
       const samples = topPhrases(m.stockHits, 3);
       out.push({
         id: "stock", label: "STOCK PHRASES",
@@ -503,11 +530,13 @@
     });
     html += escapeHtml(text.slice(cursor));
 
+    // count rendered marks, not raw hits: overlapping ranges merge into one mark
+    const count = (type) => ranges.filter((r) => r.type === type).length;
     const tally = [
-      ["solid", "AI-typical", m.aiHits.length],
-      ["dotted", "soft", m.softHits.length],
-      ["dashed", "stock", m.stockHits.length],
-      ["wavy", "typographic", m.emDash + m.enDash + m.curly + m.ellipsis]
+      ["solid", "AI-typical", count("solid")],
+      ["dotted", "soft", count("dotted")],
+      ["dashed", "stock", count("dashed")],
+      ["wavy", "typographic", count("wavy")]
     ].filter((t) => t[2] > 0).map((t) => `${t[2]} ${t[1]}`);
 
     html += '<span class="anom-tally">' +
