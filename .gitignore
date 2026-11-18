@@ -1,0 +1,6 @@
+.freebuff/
+.cloud-attachments/
+node_modules/
+_site/
+screenshot*.png
+shot-*.png

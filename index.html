@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dept. of State · AI Detector — Provenance Review</title>
+<meta name="description" content="Linguistic provenance screening: heuristic stylometry that reads the traces machine-generated text leaves behind. Client-side, no uploads." />
+<meta name="color-scheme" content="dark light" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Special+Elite&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/css/style.css" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23070b10'/%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%23c8a63f' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%23c8a63f'/%3E%3C/svg%3E" />
+</head>
+<body>
+<div class="crt" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="seal-wrap" aria-hidden="true">
+    <svg class="seal" viewBox="0 0 100 100" role="img">
+      <defs>
+        <path id="arcTop" d="M 50,50 m -37,0 a 37,37 0 1,1 74,0" />
+        <path id="arcBottom" d="M 50,50 m -33,0 a 33,33 0 1,0 66,0" />
+        <radialGradient id="sealBg" cx="40%" cy="30%" r="78%">
+          <stop offset="0%" stop-color="#f7f0dc" />
+          <stop offset="58%" stop-color="#e7dcc0" />
+          <stop offset="100%" stop-color="#cbbd9c" />
+        </radialGradient>
+      </defs>
+      <circle cx="50" cy="50" r="49" fill="url(#sealBg)" stroke="#8a6d1c" stroke-width="1.6" />
+      <circle cx="50" cy="50" r="44.5" fill="none" stroke="#8a6d1c" stroke-width="0.7" />
+      <circle cx="50" cy="50" r="31" fill="none" stroke="#8a6d1c" stroke-width="0.7" stroke-dasharray="1.5 2.2" />
+      <text class="seal-ring" font-size="6.8" letter-spacing="1.5" fill="#16283f" font-family="Georgia, serif" font-weight="700">
+        <textPath href="#arcTop" startOffset="50%" text-anchor="middle">DEPARTMENT OF STATE</textPath>
+      </text>
+      <text class="seal-ring" font-size="4.6" letter-spacing="1.1" fill="#5c4a18" font-family="Georgia, serif" font-weight="700">
+        <textPath href="#arcBottom" startOffset="50%" text-anchor="middle">UNITED STATES OF AMERICA</textPath>
+      </text>
+      <g fill="#8a6d1c">
+        <circle cx="50" cy="8.5" r="1.1" />
+        <circle cx="20.5" cy="50" r="1.1" />
+        <circle cx="79.5" cy="50" r="1.1" />
+      </g>
+      <g class="seal-shield">
+        <path d="M50 24 L65 30.5 V45 C65 55.5 57.5 64 50 68 C42.5 64 35 55.5 35 45 V30.5 Z"
+              fill="#152a44" stroke="#8a6d1c" stroke-width="1.2" />
+        <path d="M50 26 V66" stroke="#cdb271" stroke-width="0.6" opacity=".6" />
+        <path d="M37.5 36.5 H62.5 M37.5 42.5 H62.5 M39 48.5 H61 M41.5 54.5 H58.5"
+              stroke="#cdb271" stroke-width="0.8" opacity=".85" />
+        <path d="M50 31 L53.2 37 H46.8 Z" fill="#e0c98a" opacity=".95" />
+      </g>
+      <g fill="none" stroke="#8a7a3f" stroke-width="0.7">
+        <path d="M27 66 C32 75.5 40.5 80 50 80 C59.5 80 68 75.5 73 66" />
+        <path d="M29.5 63 C34 71 41.5 75.5 50 75.5 C58.5 75.5 66 71 70.5 63" opacity=".55" />
+      </g>
+    </svg>
+  </div>
+
+  <div class="titles">
+    <h1>
+      <span class="wordmark">DEPT. OF STATE · AI DETECTOR</span>
+      <span class="sep">·</span> HIGH COMMAND
+      <span class="sep">·</span> <em>provenance review</em>
+    </h1>
+    <p class="sub">INTELLIGENCE BRIEFING UNIT <span class="slashes">//</span> AI-ORIGIN SCREENING</p>
+  </div>
+
+  <div class="topright">
+    <label class="liaison" for="analyst">CHIEF ANALYST <input id="analyst" value="UNASSIGNED" spellcheck="false" autocomplete="off" /></label>
+    <button class="btn ghost" id="lockBtn" type="button">
+      <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><rect x="3" y="7" width="10" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+      LOCK
+    </button>
+    <button class="btn ghost" id="parchmentBtn" type="button" aria-pressed="false">
+      <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><circle cx="8" cy="8" r="3.2" fill="currentColor"/><g stroke="currentColor" stroke-width="1.2"><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6L13 13M13 3l-1.4 1.4M4.4 11.6L3 13"/></g></svg>
+      PARCHMENT MODE
+    </button>
+  </div>
+</header>
+
+<main class="grid">
+  <!-- ══════════════ LEFT COLUMN ══════════════ -->
+  <div class="col col-left">
+
+    <section class="panel">
+      <header class="panel-h"><span class="dia">◆</span> CASE FILE <span class="hsub">// DOSSIER INTAKE</span></header>
+      <div class="panel-b">
+        <div class="intake-row">
+          <input id="searchInput" class="field" type="search" placeholder="Search dossiers" autocomplete="off" aria-label="Search dossiers" />
+          <select id="sortSelect" class="field select" aria-label="Sort dossiers">
+            <option value="newest">Newest first</option>
+            <option value="highest">Highest risk</option>
+            <option value="lowest">Lowest risk</option>
+          </select>
+        </div>
+        <p class="live-line">
+          <span class="live-dot" aria-hidden="true"></span><span class="live">LIVE</span>
+          <span id="liveCount">Bureau of Linguistic Assessment · 0 dossiers</span>
+          <span class="muted">· updated <span id="liveTime">--:--</span></span>
+          <button class="linkish" id="newBtn" type="button">New dossier</button>
+          <button class="linkish" id="sampleBtn" type="button">Load sample</button>
+          <button class="linkish" id="archiveBtn" type="button">Clear archive</button>
+        </p>
+        <div id="caseList" class="case-list" role="list" aria-label="Dossiers"></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <header class="panel-h"><span class="dia">◆</span> SUBJECT SAMPLE <span class="hsub">// TEXT UNDER ANALYSIS</span></header>
+      <div class="panel-b">
+        <textarea id="subjectText" class="field area" rows="7" spellcheck="false"
+          placeholder="Paste the message, post or document to screen.&#10;&#10;Forty words or more gives a usable read."></textarea>
+        <div class="field-foot">
+          <span><span id="charCount">0</span> chars · <span id="wordCount">0</span> words</span>
+          <span class="muted">CTRL + ENTER</span>
+        </div>
+        <div class="intake-row bottom">
+          <select id="contextSel" class="field select" aria-label="Writing context">
+            <option value="chat">Context: chat / DM</option>
+            <option value="forum">Context: forum post</option>
+            <option value="formal">Context: formal document</option>
+          </select>
+          <button class="btn gold" id="analyzeBtn" type="button">RUN SCREENING</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <header class="panel-h"><span class="dia">◆</span> BASELINE <span class="hsub">// THEIR OWN WORDS</span></header>
+      <div class="panel-b">
+        <textarea id="baselineText" class="field area tall" rows="8" spellcheck="false"
+          placeholder="Optional. Paste 10-20 messages you know are human, one per line, to compare voice against the sample."></textarea>
+        <div class="field-foot">
+          <span><span id="baselineCount">0</span> words of baseline</span>
+          <span class="muted" id="baselineState">NO BASELINE</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel current-panel">
+      <div class="panel-b current-row">
+        <div class="current-label">CURRENT DOSSIER <span id="currentName">None selected</span></div>
+        <button class="btn danger" id="clearBtn" type="button">CLEAR CASE</button>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ══════════════ RIGHT COLUMN ══════════════ -->
+  <div class="col col-right">
+
+    <section class="panel findings">
+      <header class="panel-h"><span class="dia">◆</span> FINDINGS <span class="hsub">// ASSESSMENT</span>
+        <span class="hright" id="confidenceLine">AWAITING SAMPLE</span>
+      </header>
+      <div class="panel-b">
+        <div class="findings-grid">
+          <div class="findings-main">
+            <p class="lead" id="findingsLead">Pick a dossier to begin.</p>
+            <div class="gauge">
+              <div class="gauge-track">
+                <span class="gauge-marker" id="gaugeMarker" style="left:0%"></span>
+              </div>
+              <div class="gauge-labels">
+                <span>LOW</span><span>READ CLOSELY</span><span>VERIFY IN PERSON</span>
+              </div>
+            </div>
+            <div class="score-row">
+              <span class="score" id="scoreNum">--</span><span class="score-den">/100 MACHINE TRACE</span>
+            </div>
+          </div>
+          <div class="stamp" id="stamp" data-state="empty">
+            <span class="stamp-main" id="stampMain">NO DOSSIER</span>
+            <span class="stamp-sub" id="stampSub">PICK ONE TO BEGIN</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <header class="panel-h"><span class="dia">◆</span> DETECTION SIGNALS <span class="hsub" id="signalCount"></span>
+        <span class="hright">CLICK ? FOR AN EXPLANATION</span>
+      </header>
+      <div class="panel-b">
+        <div id="signalList" class="signal-list"></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <header class="panel-h"><span class="dia">◆</span> HIGHLIGHTED ANOMALIES <span class="hsub" id="anomCount"></span></header>
+      <div class="panel-b">
+        <div class="legend">
+          <span class="lg"><i class="sw solid"></i>AI-typical word</span>
+          <span class="lg"><i class="sw dotted"></i>Common in AI writing</span>
+          <span class="lg"><i class="sw dashed"></i>Stock phrase</span>
+          <span class="lg"><i class="sw wavy"></i>Em dash or pasted formatting</span>
+        </div>
+        <div id="highlight" class="typed">
+          <p class="empty-note">Pick a dossier above to load the sample.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <header class="panel-h"><span class="dia">◆</span> FOLLOW-UP SCRIPT <span class="hsub">// ASK IN DMS</span></header>
+      <div class="panel-b">
+        <ol id="followupList" class="followups">
+          <li class="empty-note">No script yet. Screen a sample first.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="panel report-panel">
+      <div class="panel-b report-row">
+        <div>
+          <h2 class="report-title">REPORT READY FOR DISCORD</h2>
+          <p class="report-sub" id="reportSub">Screen a sample to generate the briefing.</p>
+        </div>
+        <button class="btn gold" id="copyBtn" type="button">
+          <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><rect x="5" y="5" width="9" height="9" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M11 5V3a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h2" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+          COPY REPORT
+        </button>
+      </div>
+      <p class="disclaimer">HEURISTIC STYLOMETRY · INDICATIVE ONLY · NOT PROOF · FALSE POSITIVES OCCUR</p>
+    </section>
+
+  </div>
+</main>
+
+<footer class="page-foot">
+  <span>UNCLASSIFIED // FOR DEMONSTRATION ONLY</span>
+  <span>Runs entirely in this browser — nothing is uploaded.</span>
+</footer>
+
+<div class="lock-overlay" id="lockOverlay" hidden>
+  <div class="lock-box">
+    <svg viewBox="0 0 16 16" width="26" height="26" aria-hidden="true"><rect x="3" y="7" width="10" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.1"/></svg>
+    <h2>SECURE TERMINAL LOCKED</h2>
+    <p>Session held. No analysis is running.</p>
+    <button class="btn gold" id="unlockBtn" type="button">PRESS TO RESUME</button>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="assets/js/detector.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
