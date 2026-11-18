@@ -9,7 +9,6 @@
 <link rel="stylesheet" href="assets/css/fonts.css" />
 <link rel="stylesheet" href="assets/css/style.css" />
 <link rel="icon" href="assets/img/seal.webp" />
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
 <div class="crt" aria-hidden="true"></div>
@@ -30,7 +29,7 @@
     <label class="liaison" for="analyst">CHIEF ANALYST <input id="analyst" value="UNASSIGNED" spellcheck="false" autocomplete="off" /></label>
     <button class="btn ghost" id="accessBtn" type="button" hidden>
       <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><circle cx="8" cy="5" r="2.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M3 14c0-2.5 2.2-4 5-4s5 1.5 5 4" fill="none" stroke="currentColor" stroke-width="1.3"/>      </svg>
-      ADMIN
+      WHITELIST
     </button>
     <button class="btn ghost" id="lockBtn" type="button">
       <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><rect x="3" y="7" width="10" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
@@ -210,7 +209,7 @@
 
 <footer class="page-foot">
   <span>UNCLASSIFIED // FOR DEMONSTRATION ONLY</span>
-  <span id="privacyStatus">Self-hosted fonts · email OTP via EmailJS · dossiers stay in this browser.</span>
+  <span id="privacyStatus">Self-hosted fonts · no network calls · dossiers stay in this browser.</span>
 </footer>
 
 <div class="auth-overlay" id="authOverlay" role="dialog" aria-modal="true" aria-labelledby="authTitle" aria-describedby="authHint">
@@ -218,30 +217,13 @@
     <div class="auth-seal" aria-hidden="true"></div>
     <p class="auth-kicker">DEPT. OF STATE · TERMINAL 07</p>
     <h2 id="authTitle">ACCESS CLEARANCE</h2>
-    <p class="auth-sub" id="authHint">Enter an approved email. A one-time code is emailed to you; no code is shown in this page.</p>
-    <div id="emailStep">
-      <label class="auth-field" for="authEmail"><span>APPROVED EMAIL</span>
-        <input id="authEmail" name="email" type="email" inputmode="email" spellcheck="false" autocomplete="off" placeholder="name@gmail.com" />
-      </label>
-    </div>
-    <div id="codeStep" hidden>
-      <p class="auth-sent">CODE SENT TO <span id="otpEmail"></span></p>
-      <div class="auth-code-box">
-        <span>EMAIL DELIVERY · CHECK YOUR INBOX</span>
-        <strong>CHECK INBOX</strong>
-      </div>
-      <label class="auth-field" for="authCode"><span>6-DIGIT CODE</span>
-        <input id="authCode" name="code" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" placeholder="000000" />
-      </label>
-      <p class="auth-code-meta" id="otpMeta">EXPIRES IN 5 MIN · 5 ATTEMPTS</p>
-    </div>
+    <p class="auth-sub" id="authHint">Enter an approved email. Admin access is checked silently; this is a client-side gate, not a security boundary.</p>
+    <label class="auth-field" for="authEmail"><span>APPROVED EMAIL</span>
+      <input id="authEmail" name="email" type="email" inputmode="email" spellcheck="false" autocomplete="off" placeholder="name@gmail.com" />
+    </label>
     <p class="auth-error" id="authError" role="alert"></p>
-    <button class="btn gold auth-submit" id="authSubmit" type="submit">SEND CODE</button>
-    <div class="auth-links" id="codeActions" hidden>
-      <button class="linkish" id="resendBtn" type="button">RESEND CODE</button>
-      <button class="linkish" id="changeEmailBtn" type="button">CHANGE EMAIL</button>
-    </div>
-    <p class="auth-demo-note">PUBLIC WHITELIST ACTIVE · ADMIN EMAIL NOT LISTED · EMAILJS REQUIRED</p>
+    <button class="btn gold auth-submit" id="authSubmit" type="submit">CHECK ACCESS</button>
+    <p class="auth-demo-note">PUBLIC WHITELIST ACTIVE · ADMIN EMAIL NOT LISTED</p>
   </form>
 </div>
 
@@ -250,7 +232,7 @@
     <div class="access-head">
       <div>
         <p class="auth-kicker">OWNER CONSOLE</p>
-        <h2 id="accessTitle">ADMIN PANEL</h2>
+        <h2 id="accessTitle">WHITELIST CONTROL</h2>
       </div>
       <button class="access-close" id="accessClose" type="button" aria-label="Close access control">✕</button>
     </div>

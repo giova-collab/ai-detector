@@ -15,13 +15,7 @@
   const OWNER_HASH = "c5214ba27a937b34e6da01392a04c676382d0f8b279ec9d53eb72d646c55380f";
   const APPROVED_KEY = "access.ai-detector.approved.v1";
   const DEFAULT_APPROVED = ["thisentirethingsucksbro@gmail.com"];
-  const OTP_TTL = 5 * 60 * 1000;
-  const OTP_MAX_ATTEMPTS = 5;
-  // EmailJS (https://www.emailjs.com). Fill these after creating a service,
-  // template and public key. Leave empty to keep the gate in setup mode.
-  const EMAILJS_PUBLIC_KEY = "";
-  const EMAILJS_SERVICE_ID = "";
-  const EMAILJS_TEMPLATE_ID = "";
+
   const RETENTION_DAYS = [0, 7, 30, 90];
   const MAX_DOSSIERS = 40;
 
@@ -45,11 +39,6 @@
   let scanTimer = null;
   let toastTimer = null;
   let approvedEmails = [];
-  let otpStage = "email";
-  let pendingEmail = "";
-  let pendingCode = "";
-  let otpExpires = 0;
-  let otpAttempts = 0;
 
   /* ── storage ─────────────────────────────────────────────────── */
 
@@ -63,10 +52,6 @@
 
   function validEmail(value) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-  }
-
-  function emailConfigured() {
-    return !!(EMAILJS_PUBLIC_KEY && EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID && window.emailjs);
   }
 
   function isBuiltIn(email) {
@@ -200,137 +185,6 @@
     toast("Email removed");
   }
 
-  function resetOtp() {
-    otpStage = "email";
-    pendingEmail = "";
-    pendingCode = "";
-    otpExpires = 0;
-    otpAttempts = 0;
-    $("emailStep").hidden = false;
-    $("codeStep").hidden = true;
-    $("codeActions").hidden = true;
-    $("authSubmit").disabled = false;
-    $("authSubmit").textContent = "SEND CODE";
-    $("authCode").value = "";
-    $("otpEmail").textContent = "";
-    $("authError").textContent = "";
-  }
-
-  function maskEmail(email) {
-    const at = email.lastIndexOf("@");
-    return at < 1 ? email : email[0] + "***" + email.slice(at);
-  }
-
-  function makeCode() {
-    const buffer = new Uint32Array(1);
-    if (window.crypto && window.crypto.getRandomValues) window.crypto.getRandomValues(buffer);
-    else buffer[0] = Math.floor(Math.random() * 0xffffffff);
-    return String(buffer[0] % 1000000).padStart(6, "0");
-  }
-
-  async function requestCode() {
-    const email = normalizeEmail($("authEmail").value);
-    if (!validEmail(email)) { authError("ENTER A VALID EMAIL ADDRESS"); return; }
-    const owner = await isOwnerEmail(email);
-    if (!owner && !approvedEmails.includes(email)) {
-      authError("EMAIL NOT ON THE APPROVED LIST");
-      return;
-    }
-    if (!emailConfigured()) {
-      authError("EMAILJS NOT CONFIGURED - SEE README");
-      return;
-    }
-    const nextCode = makeCode();
-    const nextExpires = Date.now() + OTP_TTL;
-    pendingEmail = email;
-    $("authEmail").value = "";
-    $("authSubmit").disabled = true;
-    $("authSubmit").textContent = "SENDING...";
-    try {
-      await window.emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_ID,
-        { to_email: email, otp_code: nextCode, expires_minutes: 5 },
-        EMAILJS_PUBLIC_KEY
-      );
-    } catch (e) {
-      resetOtp();
-      $("authSubmit").disabled = false;
-      authError("EMAIL SEND FAILED - CHECK EMAILJS CONFIG");
-      return;
-    }
-    pendingCode = nextCode;
-    otpExpires = nextExpires;
-    otpAttempts = 0;
-    otpStage = "code";
-    $("authSubmit").disabled = false;
-    $("emailStep").hidden = true;
-    $("codeStep").hidden = false;
-    $("codeActions").hidden = false;
-    $("authSubmit").textContent = "VERIFY CODE";
-    $("otpEmail").textContent = maskEmail(email);
-    $("otpMeta").textContent = "EXPIRES IN 5 MIN · " + OTP_MAX_ATTEMPTS + " ATTEMPTS";
-    $("authError").textContent = "";
-    $("authCode").value = "";
-    $("authCode").focus();
-  }
-
-  async function resendCode() {
-    if (!pendingEmail) { resetOtp(); return; }
-    if (!emailConfigured()) { authError("EMAILJS NOT CONFIGURED - SEE README"); return; }
-    const email = pendingEmail;
-    const nextCode = makeCode();
-    const nextExpires = Date.now() + OTP_TTL;
-    $("authSubmit").disabled = true;
-    $("authSubmit").textContent = "SENDING...";
-    try {
-      await window.emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_ID,
-        { to_email: email, otp_code: nextCode, expires_minutes: 5 },
-        EMAILJS_PUBLIC_KEY
-      );
-    } catch (e) {
-      $("authSubmit").disabled = false;
-      $("authSubmit").textContent = "VERIFY CODE";
-      authError("EMAIL SEND FAILED - OLD CODE STILL VALID");
-      return;
-    }
-    pendingCode = nextCode;
-    otpExpires = nextExpires;
-    otpAttempts = 0;
-    $("authSubmit").disabled = false;
-    $("authSubmit").textContent = "VERIFY CODE";
-    $("otpMeta").textContent = "EXPIRES IN 5 MIN · " + OTP_MAX_ATTEMPTS + " ATTEMPTS";
-    $("authCode").value = "";
-    $("authError").textContent = "";
-    $("authCode").focus();
-  }
-
-  async function verifyCode() {
-    if (Date.now() > otpExpires) { authError("CODE EXPIRED · RESEND"); return; }
-    if (otpAttempts >= OTP_MAX_ATTEMPTS) { authError("TOO MANY ATTEMPTS · RESEND"); return; }
-    const code = $("authCode").value.replace(/\D/g, "");
-    if (code.length !== 6) { authError("ENTER THE 6-DIGIT CODE"); return; }
-    if (code !== pendingCode) {
-      otpAttempts += 1;
-      authError("CODE REJECTED · " + (OTP_MAX_ATTEMPTS - otpAttempts) + " ATTEMPTS LEFT");
-      $("authCode").value = "";
-      $("authCode").focus();
-      return;
-    }
-    const email = pendingEmail;
-    resetOtp();
-    await signInWithEmail(email);
-  }
-
-  function changeEmail() {
-    const previous = pendingEmail;
-    resetOtp();
-    $("authEmail").value = previous;
-    $("authEmail").focus();
-  }
-
   async function signInWithEmail(raw) {
     const email = normalizeEmail(raw);
     if (!validEmail(email)) { authError("ENTER A VALID EMAIL ADDRESS"); return false; }
@@ -359,8 +213,7 @@
 
   async function authenticate(e) {
     e.preventDefault();
-    if (otpStage === "email") await requestCode();
-    else await verifyCode();
+    await signInWithEmail($("authEmail").value);
   }
 
   function signOut() {
@@ -371,7 +224,6 @@
     setAccessOpen(false);
     $("lockOverlay").hidden = true;
     $("authEmail").value = "";
-    resetOtp();
     setAuthLocked(true);
     updateAccessUi();
   }
@@ -456,7 +308,7 @@
     const retention = state.retentionDays ? "auto-erase after " + state.retentionDays + " days" : "kept until cleared";
     $("privacyStatus").textContent = state.sessionOnly
       ? "Session only · dossiers not saved · reload clears the archive."
-      : "Self-hosted fonts · email OTP via EmailJS · dossiers stay here, " + retention + ".";
+      : "Self-hosted fonts · no network calls · dossiers stay here, " + retention + ".";
   }
 
   function toggleSession() {
@@ -968,8 +820,6 @@
     });
 
     $("authForm").addEventListener("submit", authenticate);
-    $("resendBtn").addEventListener("click", resendCode);
-    $("changeEmailBtn").addEventListener("click", changeEmail);
     $("signOutBtn").addEventListener("click", signOut);
 
     $("accessBtn").addEventListener("click", () => setAccessOpen(true));
@@ -1046,7 +896,6 @@
     if (expired) toast(expired + " expired dossier" + (expired === 1 ? "" : "s") + " erased");
 
     setAuthLocked(!signedInEmail());
-    if (!signedInEmail()) resetOtp();
     updateAccessUi();
 
     setInterval(() => {

@@ -43,30 +43,13 @@ UI or clipboard report. A hash keeps the address out of casual view, but it is n
 confidentiality against a determined offline attacker, and this is still a client-side
 gate with no server enforcement.
 
-**Email one-time code.** After an approved email the gate generates a 6-digit code and
-sends it through EmailJS. No code is shown in the page. The code expires after 5 minutes
-and allows 5 attempts.
+**Email-only gate.** The gate only asks for an approved email address. There is no OTP,
+email provider or backend: if the email is on the approved list, access is granted. This
+is a client-side convenience gate, not a security boundary; anyone who can edit this
+browser can bypass it.
 
-### Email OTP setup (EmailJS)
-
-1. Create a free EmailJS account.
-2. Add an email service. Choose any non-Google provider or SMTP if you prefer; EmailJS
-   supports several providers.
-3. Create an email template using these variables: `{{to_email}}`, `{{otp_code}}`,
-   `{{expires_minutes}}`. Example body: `Your access code is {{otp_code}}. It expires
-   in {{expires_minutes}} minutes.`
-4. Copy the Public Key, Service ID and Template ID into the `EMAILJS_*` constants at the
-top of `assets/js/app.js`.
-5. In the EmailJS dashboard, restrict allowed origins to `http://127.0.0.1:5173` and
-   your GitHub Pages origin.
-6. Reload and test with an approved email.
-
-If EmailJS is not configured, the gate shows `EMAILJS NOT CONFIGURED`.
-
-If you cannot maintain a backend, EmailJS is the simplest no-backend option. A more
-private alternative is a managed auth service (for example Supabase Auth) or a small
-serverless function with a transactional email provider; both keep secrets off the client
-but require more setup.
+The owner signs in with the approved owner address. The owner email is not stored in
+plaintext; only its salted PBKDF2 hash is in `assets/js/app.js`.
 
 1. Paste a sample into **SUBJECT SAMPLE**.
 2. Optionally paste known-human messages into **BASELINE**.
@@ -79,8 +62,8 @@ retention, and **SESSION ONLY** keeps them in memory. **CLEAR ARCHIVE** wipes th
 
 ## Privacy
 
-- **Network use.** Fonts are self-hosted. EmailJS is contacted only when sending an
-access code; there are no analytics or telemetry. Dossier text never leaves the browser.
+- **No external requests.** Fonts are self-hosted; there are no email providers,
+analytics or telemetry. Dossier text never leaves the browser.
 - **No uploads.** Screening runs in the page; sample and baseline text never leave the
 browser.
 - **Admin identity.** The owner email is stored only as a salted PBKDF2 hash; it is not
