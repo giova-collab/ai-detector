@@ -17,7 +17,7 @@ positives are expected.** Read the signals, not just the number.
 | --- | --- |
 | AI lexicon | Density of over-represented LLM vocabulary (“delve”, “leverage”, “robust”, “tapestry”). |
 | Stock phrases | Whole discourse templates: “it's important to note”, “in conclusion”, “a double-edged sword”. |
-| Sentence rhythm | Burstiness — the spread of sentence lengths. Humans are lumpy; generated prose keeps tempo. List formatting caps this row, since bullets force uniform lines. |
+| Sentence rhythm | Burstiness — the spread of sentence lengths. Humans are lumpy; generated prose keeps tempo. List formatting with human voice caps this row, since bullets force uniform lines. |
 | Concrete anchors | Numbers, dates, proper names, checkable detail. Capped at 45: an absence of specifics corroborates, it never decides alone. |
 | Formatting tells | Em dashes, curly quotes, markdown, lists, paragraph symmetry, plus mechanical polish (capitals, terminal punctuation, comma rhythm). |
 | Human voice | Contractions, slang, fillers, first person, exclamation. Their absence is itself a signal. |
