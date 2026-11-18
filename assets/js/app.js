@@ -6,6 +6,8 @@
 
   const $ = (id) => document.getElementById(id);
   const STORE_KEY = "state.ai-detector.v1";
+  const SESSION_KEY = "pref.ai-detector.session";
+  const RETENTION_DAYS = [0, 7, 30, 90];
   const MAX_DOSSIERS = 40;
 
   const SAMPLE_AI = `In today's fast-paced digital landscape, effective communication plays a crucial role in fostering meaningful connections. It's important to note that AI-generated text often carries a distinct set of stylistic markers — subtle signals that, when examined closely, reveal the underlying mechanisms at work. Moreover, researchers have increasingly leveraged large language models to streamline workflows, enhance productivity, and unlock new possibilities across a wide range of domains. This is not merely a technical shift; it is a testament to the transformative power of modern computing. However, it is worth noting that these tools are a double-edged sword. While they can elevate efficiency, they may also introduce a pervasive sameness into public discourse. Ultimately, navigating this ever-evolving landscape requires a nuanced, multifaceted approach — one that balances innovation with accountability.`;
@@ -19,7 +21,9 @@
     query: "",
     context: "chat",
     analyst: "UNASSIGNED",
-    parchment: false
+    parchment: false,
+    sessionOnly: false,
+    retentionDays: 30
   };
 
   let current = null;
@@ -28,7 +32,17 @@
 
   /* ── storage ─────────────────────────────────────────────────── */
 
+  function sessionRequested() {
+    try { return sessionStorage.getItem(SESSION_KEY) === "1"; } catch (e) { return false; }
+  }
+
   function load() {
+    // A session-only tab keeps nothing on disk, even if a previous run wrote it.
+    if (sessionRequested()) {
+      state.sessionOnly = true;
+      try { localStorage.removeItem(STORE_KEY); } catch (e) { /* storage blocked */ }
+      return;
+    }
     try {
       const raw = localStorage.getItem(STORE_KEY);
       if (!raw) return;
@@ -41,10 +55,13 @@
       state.context = data.context || "chat";
       state.analyst = data.analyst || "UNASSIGNED";
       state.parchment = !!data.parchment;
+      const days = Number(data.retentionDays);
+      state.retentionDays = RETENTION_DAYS.includes(days) ? days : 30;
     } catch (e) { /* corrupt store: start clean */ }
   }
 
   function save() {
+    if (state.sessionOnly) return;
     try {
       localStorage.setItem(STORE_KEY, JSON.stringify({
         dossiers: state.dossiers.slice(0, MAX_DOSSIERS).map((d) => ({
@@ -62,9 +79,66 @@
         sort: state.sort,
         context: state.context,
         analyst: state.analyst,
-        parchment: state.parchment
+        parchment: state.parchment,
+        retentionDays: state.retentionDays
       }));
     } catch (e) { /* quota — keep working in memory */ }
+  }
+
+  function purgeExpired(announce) {
+    if (!state.retentionDays) return 0;
+    const cutoff = Date.now() - state.retentionDays * 86400000;
+    const before = state.dossiers.length;
+    state.dossiers = state.dossiers.filter((d) => Number.isFinite(d.createdAt) && d.createdAt >= cutoff);
+    const removed = before - state.dossiers.length;
+    if (!removed) return 0;
+    if (state.activeId && !state.dossiers.some((d) => d.id === state.activeId)) {
+      state.activeId = null;
+      current = null;
+      $("subjectText").value = "";
+      $("baselineText").value = "";
+      updateCounts();
+      resetFindings();
+    }
+    if (announce) toast(removed + " expired dossier" + (removed === 1 ? "" : "s") + " erased");
+    return removed;
+  }
+
+  function updatePrivacyUi() {
+    const btn = $("sessionBtn");
+    if (!btn) return;
+    btn.setAttribute("aria-pressed", String(state.sessionOnly));
+    document.body.classList.toggle("session", state.sessionOnly);
+    $("privacyMode").textContent = state.sessionOnly ? "SESSION ONLY" : "PERSISTENT";
+    const sel = $("retentionSel");
+    sel.value = String(state.retentionDays);
+    sel.disabled = state.sessionOnly;
+    const retention = state.retentionDays ? "auto-erase after " + state.retentionDays + " days" : "kept until cleared";
+    $("privacyStatus").textContent = state.sessionOnly
+      ? "Session only · dossiers not saved · reload clears the archive."
+      : "Self-hosted fonts · no network calls · dossiers stay here, " + retention + ".";
+  }
+
+  function toggleSession() {
+    if (!state.sessionOnly) {
+      const msg = state.dossiers.length
+        ? "Enable session-only? The " + state.dossiers.length + " stored dossiers will be erased from this browser; this tab keeps them until reload."
+        : "Enable session-only? Nothing will be written to this browser.";
+      if (!window.confirm(msg)) return;
+      try {
+        localStorage.removeItem(STORE_KEY);
+        sessionStorage.setItem(SESSION_KEY, "1");
+      } catch (e) { /* storage blocked */ }
+      state.sessionOnly = true;
+      toast("Session only: dossiers stay in memory");
+    } else {
+      try { sessionStorage.removeItem(SESSION_KEY); } catch (e) { /* storage blocked */ }
+      state.sessionOnly = false;
+      save();
+      toast("Persistent mode: dossiers stored in this browser");
+    }
+    updatePrivacyUi();
+    renderList();
   }
 
   /* ── tiny ui helpers ─────────────────────────────────────────── */
@@ -529,6 +603,30 @@
       save();
     });
 
+    $("sessionBtn").addEventListener("click", toggleSession);
+    $("retentionSel").addEventListener("change", (e) => {
+      const days = Number(e.target.value);
+      state.retentionDays = RETENTION_DAYS.includes(days) ? days : 30;
+      const removed = purgeExpired(false);
+      save();
+      renderList();
+      updatePrivacyUi();
+      toast(removed ? removed + " expired dossier" + (removed === 1 ? "" : "s") + " erased" : "Auto-erase updated");
+    });
+    window.addEventListener("pagehide", () => {
+      if (!state.sessionOnly) return;
+      try { localStorage.removeItem(STORE_KEY); } catch (e) { /* storage blocked */ }
+    });
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState !== "visible" || state.sessionOnly) return;
+      const removed = purgeExpired(false);
+      if (!removed) return;
+      save();
+      renderList();
+      updatePrivacyUi();
+      toast(removed + " expired dossier" + (removed === 1 ? "" : "s") + " erased");
+    });
+
     $("lockBtn").addEventListener("click", () => {
       $("lockOverlay").hidden = false;
       $("unlockBtn").focus();
@@ -553,12 +651,16 @@
 
   function init() {
     load();
+    const expired = purgeExpired(false);
+    if (expired && !state.sessionOnly) save();
     $("analyst").value = state.analyst;
     $("sortSelect").value = state.sort;
     $("contextSel").value = state.context;
+    $("retentionSel").value = String(state.retentionDays);
     applyTheme();
     bind();
     updateCounts();
+    updatePrivacyUi();
     renderList();
 
     if (state.activeId && state.dossiers.some((d) => d.id === state.activeId)) {
@@ -566,8 +668,18 @@
     } else {
       resetFindings();
     }
+    if (expired) toast(expired + " expired dossier" + (expired === 1 ? "" : "s") + " erased");
 
-    setInterval(() => { $("liveTime").textContent = clockLabel(new Date()); }, 30000);
+    setInterval(() => {
+      $("liveTime").textContent = clockLabel(new Date());
+      if (state.sessionOnly) return;
+      const removed = purgeExpired(false);
+      if (!removed) return;
+      save();
+      renderList();
+      updatePrivacyUi();
+      toast(removed + " expired dossier" + (removed === 1 ? "" : "s") + " erased");
+    }, 3600000);
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);

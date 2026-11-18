@@ -37,7 +37,23 @@ chat samples are judged against how people actually type.
 4. Read the signal breakdown, click `?` for each explanation, inspect the highlighted
    anomalies, then copy the briefing with **COPY REPORT**.
 
-Dossiers persist in `localStorage` on your machine. **CLEAR ARCHIVE** wipes them.
+Dossiers persist in `localStorage` by default. The **AUTO-ERASE** dropdown controls
+retention, and **SESSION ONLY** keeps them in memory. **CLEAR ARCHIVE** wipes them.
+
+## Privacy
+
+- **No external requests.** Fonts are self-hosted in `assets/fonts` (IBM Plex Mono under
+the SIL OFL, Special Elite under Apache 2.0); there are no Google Fonts links, analytics
+or telemetry.
+- **No uploads.** Screening runs in the page; sample and baseline text never leave the
+browser.
+- **Session only** (header) clears the stored archive, disables further writes, and keeps
+new dossiers in memory. A `sessionStorage` flag remembers the mode for the tab so a
+reload cannot accidentally persist the next dossier; the reload empties the archive. No
+dossier text is written while it is on.
+- **Auto-erase**: 7, 30, 90 days or never. Expired dossiers are removed on load, when the
+tab becomes visible and hourly, and the removal is persisted. `CLEAR ARCHIVE` wipes
+everything.
 
 ## Validation
 
@@ -85,6 +101,8 @@ assets/css/style.css       navy–brass terminal theme + parchment theme
 assets/js/detector.js      measurement, signals, scoring, highlighting
 assets/js/app.js           archive, rendering, report, lock, theme
 assets/img/seal.webp       Department of State seal, spins on the Z axis
+assets/fonts/              self-hosted woff2 files + font licenses
+assets/css/fonts.css       local @font-face declarations
 benchmark/                 labeled pairs, typical-AI stress set, AUC/FPR report
 ```
 

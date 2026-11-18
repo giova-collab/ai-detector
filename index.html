@@ -6,9 +6,7 @@
 <title>Dept. of State · AI Detector — Provenance Review</title>
 <meta name="description" content="Linguistic provenance screening: heuristic stylometry that reads the traces machine-generated text leaves behind. Client-side, no uploads." />
 <meta name="color-scheme" content="dark light" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Special+Elite&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/css/fonts.css" />
 <link rel="stylesheet" href="assets/css/style.css" />
 <link rel="icon" href="assets/img/seal.webp" />
 </head>
@@ -37,6 +35,10 @@
       <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><circle cx="8" cy="8" r="3.2" fill="currentColor"/><g stroke="currentColor" stroke-width="1.2"><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6L13 13M13 3l-1.4 1.4M4.4 11.6L3 13"/></g></svg>
       PARCHMENT MODE
     </button>
+    <button class="btn ghost" id="sessionBtn" type="button" aria-pressed="false" title="Keep dossiers in memory only; no dossier is saved to storage">
+      <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><circle cx="8" cy="8" r="5.6" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M3.6 12.4L12.4 3.6" stroke="currentColor" stroke-width="1.2"/></svg>
+      SESSION ONLY
+    </button>
   </div>
 </header>
 
@@ -62,6 +64,18 @@
           <button class="linkish" id="newBtn" type="button">New dossier</button>
           <button class="linkish" id="sampleBtn" type="button">Load sample</button>
           <button class="linkish" id="archiveBtn" type="button">Clear archive</button>
+        </p>
+        <p class="privacy-line">
+          <span class="muted">PRIVACY</span>
+          <span id="privacyMode" class="privacy-mode">PERSISTENT</span>
+          <span class="muted">·</span>
+          <label for="retentionSel">AUTO-ERASE</label>
+          <select id="retentionSel" class="field select slim" aria-label="Automatic dossier deletion">
+            <option value="7">7 days</option>
+            <option value="30" selected>30 days</option>
+            <option value="90">90 days</option>
+            <option value="0">Never</option>
+          </select>
         </p>
         <div id="caseList" class="case-list" role="list" aria-label="Dossiers"></div>
       </div>
@@ -191,7 +205,7 @@
 
 <footer class="page-foot">
   <span>UNCLASSIFIED // FOR DEMONSTRATION ONLY</span>
-  <span>Runs entirely in this browser — nothing is uploaded.</span>
+  <span id="privacyStatus">Self-hosted fonts · no network calls · dossiers stay in this browser.</span>
 </footer>
 
 <div class="lock-overlay" id="lockOverlay" hidden>
