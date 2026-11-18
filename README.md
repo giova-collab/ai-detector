@@ -63,6 +63,7 @@ index.html                 markup / layout
 assets/css/style.css       navy–brass terminal theme + parchment theme
 assets/js/detector.js      measurement, signals, scoring, highlighting
 assets/js/app.js           archive, rendering, report, lock, theme
+assets/img/seal.webp       Department of State seal, spins on the Z axis
 ```
 
 ## License
