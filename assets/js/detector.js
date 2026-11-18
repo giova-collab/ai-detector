@@ -33,7 +33,7 @@
     "ensure", "ensuring", "effective", "efficient", "efficiency", "essential",
     "fundamental", "fundamentally", "relevant", "relevance", "approach", "approaches",
     "framework", "perspective", "landscape", "environment", "context", "potential",
-    "potentially", "insight", "insights", "explore", "exploring", "diverse", "diversity",
+    "potentially", "insight", "insights", "explore", "exploring", "diversity",
     "dynamic", "complex", "complexity", "align", "aligned", "alignment", "enhance",
     "enhancing", "enhancement", "implement", "implementing", "implementation",
     "sustainable", "accessible", "engagement", "solutions", "storytelling", "growing",
