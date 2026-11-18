@@ -17,6 +17,11 @@
   const DEFAULT_APPROVED = ["thisentirethingsucksbro@gmail.com"];
   const OTP_TTL = 5 * 60 * 1000;
   const OTP_MAX_ATTEMPTS = 5;
+  // EmailJS (https://www.emailjs.com). Fill these after creating a service,
+  // template and public key. Leave empty to keep the gate in setup mode.
+  const EMAILJS_PUBLIC_KEY = "";
+  const EMAILJS_SERVICE_ID = "";
+  const EMAILJS_TEMPLATE_ID = "";
   const RETENTION_DAYS = [0, 7, 30, 90];
   const MAX_DOSSIERS = 40;
 
@@ -58,6 +63,10 @@
 
   function validEmail(value) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  }
+
+  function emailConfigured() {
+    return !!(EMAILJS_PUBLIC_KEY && EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID && window.emailjs);
   }
 
   function isBuiltIn(email) {
@@ -200,9 +209,9 @@
     $("emailStep").hidden = false;
     $("codeStep").hidden = true;
     $("codeActions").hidden = true;
+    $("authSubmit").disabled = false;
     $("authSubmit").textContent = "SEND CODE";
     $("authCode").value = "";
-    $("otpCode").textContent = "------";
     $("otpEmail").textContent = "";
     $("authError").textContent = "";
   }
@@ -227,30 +236,71 @@
       authError("EMAIL NOT ON THE APPROVED LIST");
       return;
     }
+    if (!emailConfigured()) {
+      authError("EMAILJS NOT CONFIGURED - SEE README");
+      return;
+    }
+    const nextCode = makeCode();
+    const nextExpires = Date.now() + OTP_TTL;
     pendingEmail = email;
-    pendingCode = makeCode();
-    otpExpires = Date.now() + OTP_TTL;
+    $("authEmail").value = "";
+    $("authSubmit").disabled = true;
+    $("authSubmit").textContent = "SENDING...";
+    try {
+      await window.emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        { to_email: email, otp_code: nextCode, expires_minutes: 5 },
+        EMAILJS_PUBLIC_KEY
+      );
+    } catch (e) {
+      resetOtp();
+      $("authSubmit").disabled = false;
+      authError("EMAIL SEND FAILED - CHECK EMAILJS CONFIG");
+      return;
+    }
+    pendingCode = nextCode;
+    otpExpires = nextExpires;
     otpAttempts = 0;
     otpStage = "code";
-    $("authEmail").value = "";
+    $("authSubmit").disabled = false;
     $("emailStep").hidden = true;
     $("codeStep").hidden = false;
     $("codeActions").hidden = false;
     $("authSubmit").textContent = "VERIFY CODE";
     $("otpEmail").textContent = maskEmail(email);
-    $("otpCode").textContent = pendingCode;
     $("otpMeta").textContent = "EXPIRES IN 5 MIN · " + OTP_MAX_ATTEMPTS + " ATTEMPTS";
     $("authError").textContent = "";
     $("authCode").value = "";
     $("authCode").focus();
   }
 
-  function resendCode() {
+  async function resendCode() {
     if (!pendingEmail) { resetOtp(); return; }
-    pendingCode = makeCode();
-    otpExpires = Date.now() + OTP_TTL;
+    if (!emailConfigured()) { authError("EMAILJS NOT CONFIGURED - SEE README"); return; }
+    const email = pendingEmail;
+    const nextCode = makeCode();
+    const nextExpires = Date.now() + OTP_TTL;
+    $("authSubmit").disabled = true;
+    $("authSubmit").textContent = "SENDING...";
+    try {
+      await window.emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        { to_email: email, otp_code: nextCode, expires_minutes: 5 },
+        EMAILJS_PUBLIC_KEY
+      );
+    } catch (e) {
+      $("authSubmit").disabled = false;
+      $("authSubmit").textContent = "VERIFY CODE";
+      authError("EMAIL SEND FAILED - OLD CODE STILL VALID");
+      return;
+    }
+    pendingCode = nextCode;
+    otpExpires = nextExpires;
     otpAttempts = 0;
-    $("otpCode").textContent = pendingCode;
+    $("authSubmit").disabled = false;
+    $("authSubmit").textContent = "VERIFY CODE";
     $("otpMeta").textContent = "EXPIRES IN 5 MIN · " + OTP_MAX_ATTEMPTS + " ATTEMPTS";
     $("authCode").value = "";
     $("authError").textContent = "";
@@ -406,7 +456,7 @@
     const retention = state.retentionDays ? "auto-erase after " + state.retentionDays + " days" : "kept until cleared";
     $("privacyStatus").textContent = state.sessionOnly
       ? "Session only · dossiers not saved · reload clears the archive."
-      : "Self-hosted fonts · no network calls · dossiers stay here, " + retention + ".";
+      : "Self-hosted fonts · email OTP via EmailJS · dossiers stay here, " + retention + ".";
   }
 
   function toggleSession() {

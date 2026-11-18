@@ -43,10 +43,30 @@ UI or clipboard report. A hash keeps the address out of casual view, but it is n
 confidentiality against a determined offline attacker, and this is still a client-side
 gate with no server enforcement.
 
-**Local one-time code.** After an approved email the gate generates a 6-digit code in
-the page, valid for 5 minutes and 5 attempts. There is no backend and no email service,
-so the code is shown in a **SIMULATED DELIVERY** box: it verifies the gate flow, not
-ownership of the mailbox. Real delivery would need a hosted auth service or a backend.
+**Email one-time code.** After an approved email the gate generates a 6-digit code and
+sends it through EmailJS. No code is shown in the page. The code expires after 5 minutes
+and allows 5 attempts.
+
+### Email OTP setup (EmailJS)
+
+1. Create a free EmailJS account.
+2. Add an email service. Choose any non-Google provider or SMTP if you prefer; EmailJS
+   supports several providers.
+3. Create an email template using these variables: `{{to_email}}`, `{{otp_code}}`,
+   `{{expires_minutes}}`. Example body: `Your access code is {{otp_code}}. It expires
+   in {{expires_minutes}} minutes.`
+4. Copy the Public Key, Service ID and Template ID into the `EMAILJS_*` constants at the
+top of `assets/js/app.js`.
+5. In the EmailJS dashboard, restrict allowed origins to `http://127.0.0.1:5173` and
+   your GitHub Pages origin.
+6. Reload and test with an approved email.
+
+If EmailJS is not configured, the gate shows `EMAILJS NOT CONFIGURED`.
+
+If you cannot maintain a backend, EmailJS is the simplest no-backend option. A more
+private alternative is a managed auth service (for example Supabase Auth) or a small
+serverless function with a transactional email provider; both keep secrets off the client
+but require more setup.
 
 1. Paste a sample into **SUBJECT SAMPLE**.
 2. Optionally paste known-human messages into **BASELINE**.
@@ -59,9 +79,8 @@ retention, and **SESSION ONLY** keeps them in memory. **CLEAR ARCHIVE** wipes th
 
 ## Privacy
 
-- **No external requests.** Fonts are self-hosted in `assets/fonts` (IBM Plex Mono under
-the SIL OFL, Special Elite under Apache 2.0); there are no external font CDNs, no email
-provider, no analytics and no telemetry. The access code is generated in the page.
+- **Network use.** Fonts are self-hosted. EmailJS is contacted only when sending an
+access code; there are no analytics or telemetry. Dossier text never leaves the browser.
 - **No uploads.** Screening runs in the page; sample and baseline text never leave the
 browser.
 - **Admin identity.** The owner email is stored only as a salted PBKDF2 hash; it is not
