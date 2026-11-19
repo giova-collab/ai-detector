@@ -17,8 +17,8 @@ AUC is descriptive and uses all pairs; threshold selection below uses train only
 | cable | 20 | 32 | 19.5 | 17 | 0.51 |
 | memo | 19.5 | 21 | 20 | 16 | 0.60 |
 | news | 13 | 20 | 11.5 | 8 | 0.46 |
-| post | 24.5 | 31 | 34.5 | 21 | 0.87 |
-| **all** | 19.5 | 32 | 20 | 8 | **0.59** |
+| post | 24 | 31 | 34.5 | 21 | 0.85 |
+| **all** | 19.5 | 32 | 20 | 8 | **0.58** |
 
 Twin token overlap: median 0.72, max 0.89. High overlap is intentional: those are the hardest clean-AI pairs; the dataset rejects twins above 0.90.
 
@@ -32,8 +32,8 @@ Twin token overlap: median 0.72, max 0.89. High overlap is intentional: those ar
 | `typical_memo_licenses` | 87 | 50 | MEDIUM |
 | `typical_news_mission` | 91 | 33 | MEDIUM |
 | `typical_news_eurobond` | 83 | 43 | MEDIUM |
-| `typical_post_lisbon` | 83 | 38 | MEDIUM |
-| `typical_post_ramen` | 89 | 43 | MEDIUM |
+| `typical_post_lisbon` | 83 | 36 | MEDIUM |
+| `typical_post_ramen` | 89 | 42 | MEDIUM |
 
 Recall on typical AI: **88% at MEDIUM (30)**, 63% at 40, 38% at 50, 13% at 60.
 

@@ -177,6 +177,10 @@
   const DATELINE_EN_RE = /^[ \t]*[A-Z][A-Z .'-]{1,40}?\s*–\s/gm;
   const CURLY_RE = /[“”‘’]/g;
   const ELLIPSIS_RE = /…/g;
+  // "DIME (Diplomatic, Information, Military, Economic)": generated formal prose
+  // expands every acronym on first use; practitioners usually use the acronym alone.
+  const GLOSS_RE = /\b(?:[A-Z]{2,6}s?|[A-Z](?:\.[A-Z]){1,6}\.?)\s*\([^)]{2,80}\)/g;
+  const SECOND_PERSON_RE = /\b(?:you|your|you're|you've|you'd|you'll|yours)\b/gi;
   const EMOJI_RE = (() => {
     try { return /\p{Extended_Pictographic}/gu; } catch (e) { return /([\u{1F300}-\u{1FAFF}])/gu; }
   })();
@@ -232,6 +236,8 @@
     const exclaim = (text.match(/!/g) || []).length;
     const question = (text.match(/\?/g) || []).length;
     const firstPerson = (text.match(/\b(I|I'm|I've|I'd|I'll|my|me|mine|we|our)\b/g) || []).length;
+    const secondPerson = (text.match(SECOND_PERSON_RE) || []).length;
+    const glosses = findAll(text, GLOSS_RE).length;
 
     // mechanical polish: capitals, terminal punctuation, comma rhythm
     const commas = (text.match(/,/g) || []).length;
@@ -266,7 +272,7 @@
       chars, words, sentences: sents.length, paragraphs: paragraphs.length,
       avgSent, sdSent, burstiness, lens,
       ttr, englishRatio, english: englishRatio >= (words >= 40 ? 0.16 : 0.08),
-      aiHits, softHits, stockHits, informalHits, contractions,
+      aiHits, softHits, stockHits, informalHits, contractions, glosses, secondPerson,
       emDash, enDash, curly, ellipsis, emoji, repeated,
       bullets, numbered, bold, headers, exclaim, question, firstPerson,
       paragraphSymmetry: pAvg ? pSd / pAvg : 0,
@@ -274,6 +280,7 @@
       softPer100: per100(softHits.length),
       stockPer100: per100(stockHits.length),
       informalPer100: per100(informalHits.length + repeated),
+      glossPer100: per100(glosses),
       contractionPer100: per100(contractions.length),
       emDashPer1k: per1k(emDash + enDash),
       firstPersonPer100: per100(firstPerson),
@@ -308,16 +315,25 @@
 
     /* 1 — AI lexicon */
     {
-      const dens = m.aiPer100 + m.softPer100 * 0.22;
+      // A glossed acronym is a register tell: models spell out every abbreviation
+      // at first use, while practitioners usually just use the acronym.
+      const dens = m.aiPer100 + m.softPer100 * 0.22 + m.glossPer100;
       let susp = norm(dens, 0.15, 3.4);
       if (m.words < 30) susp = 0.5 + (susp - 0.5) * 0.5;
       const samples = topPhrases(m.aiHits.concat(m.softHits), 3);
+      const hits = m.aiHits.length + m.softHits.length;
+      const glossText = m.glosses
+        ? `${m.glosses} acronym${m.glosses === 1 ? " is" : "s are"} expanded in parentheses at first use — a documentation habit common in generated briefings.`
+        : "";
+      const note = hits
+        ? `${hits} flagged terms across ${m.words} words (${dens.toFixed(1)} per 100). Loaded words: ${samples.map(q).join(", ")}. Machine prose gravitates to this register; casual human writing usually does not.${glossText ? " " + glossText : ""}`
+        : glossText
+          ? `No loaded vocabulary, but ${glossText.charAt(0).toLowerCase() + glossText.slice(1)}`
+          : `No dictionary hits. Nothing like “delve”, “leverage” or “robust” appears in the sample.`;
       out.push({
         id: "lexicon", label: "AI LEXICON",
         value: round(susp * 100), weight: w.lexicon, susp,
-        note: samples.length
-          ? `${m.aiHits.length + m.softHits.length} flagged terms across ${m.words} words (${dens.toFixed(1)} per 100). Loaded words: ${samples.map(q).join(", ")}. Machine prose gravitates to this register; casual human writing usually does not.`
-          : `No dictionary hits. Nothing like “delve”, “leverage” or “robust” appears in the sample.`
+        note
       });
     }
 
@@ -419,13 +435,15 @@
         m.firstPersonPer100 * 0.35 +
         Math.min(m.informalHits.length, 5) * 0.3 +
         Math.min(m.contractions.length, 4) * 0.35 +
-        (m.exclaim ? Math.min(m.exclaim, 6) : 0) * 0.35;
+        (m.exclaim ? Math.min(m.exclaim, 6) : 0) * 0.35 +
+        (opts.context === "formal" ? 0 : Math.min(m.secondPerson, 5) * 0.5);
       let susp = clamp(1 - norm(humanMarks, 0.4, 7), 0, 1);
       if (opts.context === "formal") susp = 0.5 + (susp - 0.5) * 0.4;
       const bits = [];
       if (m.informalHits.length) bits.push(`${m.informalHits.length} slang/casual markers`);
       if (m.contractions.length) bits.push(`${m.contractions.length} contractions`);
       if (m.firstPerson) bits.push(`${m.firstPerson} first-person references`);
+      if (m.secondPerson && opts.context !== "formal") bits.push(`${m.secondPerson} second-person references`);
       out.push({
         id: "voice", label: "HUMAN VOICE",
         value: round(susp * 100), weight: w.voice, susp,
@@ -642,7 +660,7 @@
     return words.length > 52 ? words.slice(0, 52).trim() + "…" : words + (clean.split(" ").length > 7 ? "…" : "");
   }
 
-  const API = { analyze, titleFor, escapeHtml, BANDS, _internals: { measure, buildSignals, WEIGHTS } };
+  const API = { analyze, titleFor, escapeHtml, countWords, BANDS, _internals: { measure, buildSignals, WEIGHTS } };
   if (typeof module !== "undefined" && module.exports) module.exports = API;
   root.AIDetector = API;
 })(typeof window !== "undefined" ? window : globalThis);

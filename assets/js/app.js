@@ -689,8 +689,8 @@
     const text = $("subjectText").value;
     const bText = $("baselineText").value;
     $("charCount").textContent = text.length;
-    $("wordCount").textContent = (text.match(/[\p{L}\p{N}]+/gu) || []).length;
-    const bWords = (bText.match(/[\p{L}\p{N}]+/gu) || []).length;
+    $("wordCount").textContent = AIDetector.countWords(text);
+    const bWords = AIDetector.countWords(bText);
     $("baselineCount").textContent = bWords;
     $("baselineState").textContent = bWords >= 25 ? "BASELINE READY" : (bWords ? "TOO SHORT" : "NO BASELINE");
   }

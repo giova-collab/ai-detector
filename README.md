@@ -15,7 +15,7 @@ positives are expected.** Read the signals, not just the number.
 
 | Signal | What it reads |
 | --- | --- |
-| AI lexicon | Density of over-represented LLM vocabulary (“delve”, “leverage”, “robust”, “tapestry”). |
+| AI lexicon | Density of over-represented LLM vocabulary (“delve”, “leverage”, “robust”, “tapestry”), plus acronyms expanded at first use (“DIME (Diplomatic, Information, Military, Economic)”) — a documentation habit common in generated briefings. |
 | Stock phrases | Whole discourse templates: “it's important to note”, “in conclusion”, “a double-edged sword”. |
 | Sentence rhythm | Burstiness — the spread of sentence lengths. Humans are lumpy; generated prose keeps tempo. List formatting with human voice caps this row, since bullets force uniform lines. |
 | Concrete anchors | Numbers, dates, proper names, checkable detail. Capped at 45: an absence of specifics corroborates, it never decides alone. |
@@ -32,7 +32,7 @@ chat samples are judged against how people actually type.
 ## Using it
 
 The console opens on an **access gate**. The built-in public whitelist contains
-`thisentirethingsucksbro@gmail.com` (approved, not admin). The owner sees **ADMIN** in the
+`thisentirethingsucksbro@gmail.com` (approved, not admin). The owner sees **WHITELIST** in the
 header to approve or remove other email addresses; built-in entries are fixed. The list
 is stored in `localStorage`, so it is per browser and client-side: anyone who can edit
 this browser can bypass it. **SIGN OUT** in the LOCK panel clears the tab session.
