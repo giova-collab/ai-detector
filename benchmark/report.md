@@ -1,9 +1,9 @@
 # Benchmark report
 
-**40 clean pairs, 80 documents**, plus **8 typical-AI stress documents**.
+**41 clean pairs, 82 documents**, plus **8 typical-AI stress documents**.
 Each pair shares the same facts in the same register; only the prose differs.
 Cables, memos and news run in `formal`; forum posts in `forum`.
-Split: **56 train / 24 test documents**, every third pair per register. Thresholds are chosen on train and checked on test.
+Split: **56 train / 26 test documents**, every third pair per register (a reference pair may pin its split). Thresholds are chosen on train and checked on test.
 
 **Limitation:** the corpus is authored for this project, not sampled from a public dataset.
 The paired AI side is deliberately clean, so the AUC is a hard-case lower bound, not a prevalence estimate.
@@ -15,10 +15,10 @@ AUC is descriptive and uses all pairs; threshold selection below uses train only
 | Register | Human median | Human max | AI median | AI min | AUC |
 | --- | --- | --- | --- | --- | --- |
 | cable | 20 | 32 | 19.5 | 17 | 0.51 |
-| memo | 19.5 | 21 | 20 | 16 | 0.60 |
+| memo | 19 | 21 | 20 | 16 | 0.67 |
 | news | 13 | 20 | 11.5 | 8 | 0.46 |
-| post | 24 | 31 | 34.5 | 21 | 0.85 |
-| **all** | 19.5 | 32 | 20 | 8 | **0.58** |
+| post | 24 | 31 | 34.5 | 21 | 0.87 |
+| **all** | 19 | 32 | 20 | 8 | **0.60** |
 
 Twin token overlap: median 0.72, max 0.89. High overlap is intentional: those are the hardest clean-AI pairs; the dataset rejects twins above 0.90.
 
@@ -32,7 +32,7 @@ Twin token overlap: median 0.72, max 0.89. High overlap is intentional: those ar
 | `typical_memo_licenses` | 87 | 50 | MEDIUM |
 | `typical_news_mission` | 91 | 33 | MEDIUM |
 | `typical_news_eurobond` | 83 | 43 | MEDIUM |
-| `typical_post_lisbon` | 83 | 36 | MEDIUM |
+| `typical_post_lisbon` | 83 | 37 | MEDIUM |
 | `typical_post_ramen` | 89 | 42 | MEDIUM |
 
 Recall on typical AI: **88% at MEDIUM (30)**, 63% at 40, 38% at 50, 13% at 60.
@@ -66,14 +66,14 @@ Recall on typical AI: **88% at MEDIUM (30)**, 63% at 40, 38% at 50, 13% at 60.
 | 75 | 0% | 0% |
 | 80 | 0% | 0% |
 
-## Held-out test (n=24)
+## Held-out test (n=26)
 
 | Setting | HIGH cut | FPR | Recall | MEDIUM cut | FPR | Recall |
 | --- | --- | --- | --- | --- | --- | --- |
-| Current | 60 | 0% | 0% | 30 | 8% | 25% |
-| Recommended | 60 | 0% | 0% | 30 | 8% | 25% |
+| Current | 60 | 0% | 0% | 30 | 8% | 31% |
+| Recommended | 60 | 0% | 0% | 30 | 8% | 31% |
 
-Pair consistency: AI twin outscored the human twin in **20/40** pairs (cable 5/10, memo 4/10, news 3/10, post 8/10).
+Pair consistency: AI twin outscored the human twin in **22/41** pairs (cable 5/10, memo 5/11, news 3/10, post 9/10).
 
 ## Per-register candidates
 
@@ -92,14 +92,14 @@ Lowest cut with train FPR at or below 5% and non-zero recall. Candidates are sel
 
 **Bands unchanged** (LOW 0–29, MEDIUM 30–59, HIGH 60–100).
 The precision-first rule finds no cut between 50 and 80 that catches clean AI with train FPR at or below 5%.
-Lowering HIGH to 30 would catch 25% of clean AI at 8% false positives on the held-out set.
-The gap is signal power — formal-register AUC 0.52 — not threshold placement.
+Lowering HIGH to 30 would catch 31% of clean AI at 8% false positives on the held-out set.
+The gap is signal power — formal-register AUC 0.55 — not threshold placement.
 
 ## Misclassified clean pairs
 
 False positives (human at or above HIGH 60): none.
 
-False negatives (AI below HIGH 60): 40 of 40.
+False negatives (AI below HIGH 60): 41 of 41.
 - `news_asylum_ai` — 8 (50 words)
 - `news_election_ai` — 8 (48 words)
 - `news_eurobond_ai` — 9 (61 words)
@@ -110,4 +110,4 @@ False negatives (AI below HIGH 60): 40 of 40.
 - `memo_airspace_ai` — 16 (63 words)
 - `cable_corridor_ai` — 17 (68 words)
 - `cable_exercise_ai` — 17 (53 words)
-- … 30 more.
+- … 31 more.

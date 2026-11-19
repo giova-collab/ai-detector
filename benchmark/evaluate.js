@@ -159,7 +159,7 @@ L.push("");
 L.push("**" + pairs.length + " clean pairs, " + rows.length + " documents**, plus **" + stress.length + " typical-AI stress documents**.");
 L.push("Each pair shares the same facts in the same register; only the prose differs.");
 L.push("Cables, memos and news run in `formal`; forum posts in `forum`.");
-L.push("Split: **" + train.length + " train / " + test.length + " test documents**, every third pair per register. Thresholds are chosen on train and checked on test.");
+L.push("Split: **" + train.length + " train / " + test.length + " test documents**, every third pair per register (a reference pair may pin its split). Thresholds are chosen on train and checked on test.");
 L.push("");
 L.push("**Limitation:** the corpus is authored for this project, not sampled from a public dataset.");
 L.push("The paired AI side is deliberately clean, so the AUC is a hard-case lower bound, not a prevalence estimate.");

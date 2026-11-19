@@ -25,7 +25,10 @@ groups.forEach((group) => {
       throw new Error("Pair below " + MIN_WORDS + " words: " + pair.id);
     }
 
-    const split = index % TEST_EVERY === TEST_EVERY - 1 ? "test" : "train";
+    if (pair.split && pair.split !== "train" && pair.split !== "test") {
+      throw new Error("Bad split for " + pair.id + ": " + pair.split);
+    }
+    const split = pair.split || (index % TEST_EVERY === TEST_EVERY - 1 ? "test" : "train");
     pairs.push({ id: pair.id, register: group.register });
     docs.push({ id: pair.id + "_human", pair: pair.id, register: group.register, context: group.context, split, label: 0, text: pair.human });
     docs.push({ id: pair.id + "_ai", pair: pair.id, register: group.register, context: group.context, split, label: 1, text: pair.ai });

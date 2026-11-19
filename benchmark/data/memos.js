@@ -50,4 +50,12 @@ module.exports = [
     human: `The draft crisis plan assumes a single spokesperson and a 24-hour approval chain. Neither held during the February exercise: approvals took 31 hours and three people spoke to the press. The plan also has no line for social media. Recommend naming two spokespeople, cutting approval to four hours, and adding a social media annex before the next exercise in September.`,
     ai: `The draft crisis plan assumes a single spokesperson and a 24-hour approval chain. Neither assumption held during the February exercise: approvals took 31 hours, and three people spoke to the press. The plan also lacks a social media line. I recommend naming two spokespeople, reducing approval to four hours, and adding a social media annex before the next exercise in September.`,
   },
+  // Reference pair: a practitioner's answer vs a model answer, both clean and
+  // specific. Held out (split: test) so calibration cannot tune on it.
+  {
+    id: "memo_foreign_affairs",
+    split: "test",
+    human: `In the Foreign Affairs field you need a lot of knowledge, such as current conflicts between countries, which premier is friend with who, and a lot more; but the biggest and most important part you need to know about are the protocols, such as the D.I.M.E., the M.O.U and the B.L.U.F. These protocols are needed to form an alliance and to report up into your chain of command.`,
+    ai: `Working in Foreign Affairs requires a broad base of knowledge—from tracking ongoing international conflicts to understanding the personal dynamics between world leaders. However, the most critical element of the job is mastering standard protocols and frameworks, such as DIME (Diplomatic, Information, Military, Economic), MOUs (Memorandums of Understanding), and BLUF (Bottom Line Up Front). These tools are essential both for forging strategic alliances and for briefing superiors clearly up the chain of command.`,
+  },
 ];

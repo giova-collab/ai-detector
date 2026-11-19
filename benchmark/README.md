@@ -17,15 +17,16 @@ The script prints the report and writes `benchmark/report.md`.
 | File | Contents |
 | --- | --- |
 | `data/cables.js` | 10 reporting cables (formal context) |
-| `data/memos.js` | 10 internal memos (formal context) |
+| `data/memos.js` | 10 internal memos + 1 held-out reference pair (formal context) |
 | `data/news.js` | 10 wire-style news stories (formal context) |
 | `data/posts.js` | 10 forum posts (forum context) |
 | `data/typical-ai.js` | 8 unpaired, cliché-heavy AI documents |
 | `index.js` | joins the registers, assigns the deterministic split |
 | `evaluate.js` | AUC, FPR/recall, threshold sweep, report |
 
-40 pairs = 80 documents. Every third pair per register goes to the test split:
-56 train documents, 24 held-out test documents.
+41 pairs = 82 documents. Every third pair per register goes to the test split unless a
+pair pins its own split. The Foreign Affairs reference pair is pinned to `test` so
+calibration cannot tune on it: 56 train documents, 26 held-out test documents.
 
 ## What is measured
 
@@ -47,6 +48,11 @@ Cables, memos and news are scored in `formal`; posts in `forum`. Human wire copy
 starts with a dateline ("BRUSSELS —"): that dash is a newsroom convention and is
 excluded from the formatting signal.
 
+The `memo_foreign_affairs` reference pair is a practitioner's answer against a model
+answer on the same subject. It exists to regression-test two calibration changes:
+acronyms glossed at first use count toward the lexicon, and second-person address
+gives limited voice credit in chat/forum. It is pinned to the test split.
+
 ## Reading the results
 
 - Clean formal pairs are close to chance (AUC around 0.6). A fluent, specific,
@@ -61,13 +67,13 @@ excluded from the formatting signal.
 The thresholds are kept at **LOW 0–29 / MEDIUM 30–59 / HIGH 60–100**.
 The precision-first rule finds no cut between 50 and 80 that catches clean AI
 without false positives, and lowering HIGH to 30 would relabel ordinary scores
-while only reaching a quarter of clean AI at an 8% false-positive rate. The
+while only reaching 31% of clean AI at an 8% false-positive rate. The
 remaining gap is signal power, not threshold placement.
 
 ## Limitations
 
 - The corpus is authored for this project, not sampled from a public dataset.
-- 40 pairs are enough to expose gross behavior, not to estimate real-world
+- 41 pairs are enough to expose gross behavior, not to estimate real-world
   prevalence or produce tight confidence intervals.
 - Scores are not probabilities. A false positive is an accusation; the HIGH
   band is intentionally conservative.

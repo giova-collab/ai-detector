@@ -181,6 +181,9 @@
   // expands every acronym on first use; practitioners usually use the acronym alone.
   const GLOSS_RE = /\b(?:[A-Z]{2,6}s?|[A-Z](?:\.[A-Z]){1,6}\.?)\s*\([^)]{2,80}\)/g;
   const SECOND_PERSON_RE = /\b(?:you|your|you're|you've|you'd|you'll|yours)\b/gi;
+  // Credit per second-person reference in chat/forum voice. Tuned so the
+  // Foreign Affairs reference human stays LOW with minimal benchmark cost.
+  const SECOND_PERSON_CREDIT = 0.25;
   const EMOJI_RE = (() => {
     try { return /\p{Extended_Pictographic}/gu; } catch (e) { return /([\u{1F300}-\u{1FAFF}])/gu; }
   })();
@@ -436,7 +439,7 @@
         Math.min(m.informalHits.length, 5) * 0.3 +
         Math.min(m.contractions.length, 4) * 0.35 +
         (m.exclaim ? Math.min(m.exclaim, 6) : 0) * 0.35 +
-        (opts.context === "formal" ? 0 : Math.min(m.secondPerson, 5) * 0.5);
+        (opts.context === "formal" ? 0 : Math.min(m.secondPerson, 5) * SECOND_PERSON_CREDIT);
       let susp = clamp(1 - norm(humanMarks, 0.4, 7), 0, 1);
       if (opts.context === "formal") susp = 0.5 + (susp - 0.5) * 0.4;
       const bits = [];

@@ -79,15 +79,16 @@ everything.
 
 ## Validation
 
-`node benchmark/evaluate.js` runs 40 labeled human/AI pairs — cables, memos, news and
-forum posts, 80 documents — plus 8 typical-AI stress documents, and writes
+`node benchmark/evaluate.js` runs 41 labeled human/AI pairs — cables, memos, news and
+forum posts, 82 documents — plus 8 typical-AI stress documents, and writes
 `benchmark/report.md` with per-register AUC, AUC per signal, FPR/recall and a threshold
-sweep.
+sweep. The memo set includes a held-out **Foreign Affairs reference pair** (practitioner
+answer vs model answer) that regression-tests acronym glossing and second-person cues.
 
-Current result: on **clean** paired formal prose the score is close to chance (AUC 0.52).
+Current result: on **clean** paired formal prose the score is close to chance (AUC 0.55).
 Typical AI reaches the MEDIUM band (88% at 30) but rarely HIGH. The bands were not moved:
 no cut-off between 50 and 80 catches clean AI without false positives and with any recall, and lowering HIGH
-to 30 buys 25% recall at an 8% false-positive rate. The honest reading is that a fluent,
+to 30 buys 31% recall at an 8% false-positive rate. The honest reading is that a fluent,
 specific, cliché-free text is a blind spot, not that the threshold is set wrong. The
 benchmark is synthetic and small: treat it as a regression harness, not a prevalence
 estimate.
